@@ -105175,7 +105175,7 @@ Body:
         StealProtected: true
 # Odin's Past (odin_past) monsters, from Divine Pride's kRO data. Attack and
 # Attack2 are derived from its displayed ranges, and the motions are copied
-# from Angeling, Frus, Skogul and Plasma; skills are not added. [unverified]
+# from Angeling, Frus, Skogul and Plasma. [unverified]
   - Id: 20604
     AegisName: ANGELGOLT
     Name: Angelgolt
