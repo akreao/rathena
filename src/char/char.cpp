@@ -1722,6 +1722,11 @@ enum e_char_del_response char_delete(struct char_session_data* sd, uint32 char_i
 	if (SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `char_id` = '%d'", schema_config.achievement_table, char_id))
 		Sql_ShowDebug(sql_handle);
 
+	/* Mods' data for this character (mod_store, scope 2 = char; the map server
+	   creates the table at start-up). */
+	if (SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `mod_store` WHERE `scope` = 2 AND `owner` = '%d'", char_id))
+		Sql_ShowDebug(sql_handle);
+
 	if (charserv_config.log_char) {
 		if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s`(`time`, `account_id`,`char_num`,`char_msg`,`name`) VALUES (NOW(), '%d', '%d', 'Deleted char (CID %d)', '%s')",
 			schema_config.charlog_db, account_id, 0, char_id, esc_name) )

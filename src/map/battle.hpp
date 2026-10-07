@@ -781,6 +781,12 @@ struct Battle_Config
 	int32 enable_bonus_map_drops;
 	int32 hide_cloaked_units;
 	int32 oridecon_research_fix;
+	// Mod store limits (mod_store.hpp), written by Ragnarok Offline each start.
+	int32 mod_store_global_bytes;
+	int32 mod_store_account_bytes;
+	int32 mod_store_char_bytes;
+	int32 mod_store_value_bytes;
+	int32 mod_store_depth;
 
 #include <custom/battle_config_struct.inc>
 };

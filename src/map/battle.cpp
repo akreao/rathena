@@ -8919,6 +8919,11 @@ static const struct _battle_data {
 	{ "enable_bonus_map_drops",             &battle_config.enable_bonus_map_drops,          1,      0,      1,              },
 	{ "hide_cloaked_units",                 &battle_config.hide_cloaked_units,              0,      0,      BL_ALL,         },
 	{ "oridecon_research_fix",              &battle_config.oridecon_research_fix,           0,      0,      1,              },
+	{ "mod_store_global_bytes",             &battle_config.mod_store_global_bytes,          1048576, 0,     INT_MAX,        },
+	{ "mod_store_account_bytes",            &battle_config.mod_store_account_bytes,         65536,  0,      INT_MAX,        },
+	{ "mod_store_char_bytes",               &battle_config.mod_store_char_bytes,            65536,  0,      INT_MAX,        },
+	{ "mod_store_value_bytes",              &battle_config.mod_store_value_bytes,           4096,   1,      16777215,       },
+	{ "mod_store_depth",                    &battle_config.mod_store_depth,                 8,      1,      32,             },
 
 #include <custom/battle_config_init.inc>
 };

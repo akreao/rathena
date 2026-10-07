@@ -55,6 +55,7 @@
 #include "mapreg.hpp"
 #include "mercenary.hpp"
 #include "mob.hpp"
+#include "mod_store.hpp"
 #include "npc.hpp"
 #include "party.hpp"
 #include "path.hpp"
@@ -18499,7 +18500,7 @@ BUILDIN_FUNC(query_logsql) {
 		return SCRIPT_CMD_FAILURE;
 	}
 
-	return buildin_query_sql_sub(st, logmysql_handle);
+	return buildin_query_sql_sub(st, qslogmysql_handle);
 }
 
 //Allows escaping of a given string.
@@ -28242,6 +28243,7 @@ BUILDIN_FUNC(mesemotion){
 }
 
 #include <custom/script.inc>
+#include "mod_store_script.inc"
 
 // declarations that were supposed to be exported from npc_chat.cpp
 #ifdef PCRE_SUPPORT
@@ -29029,6 +29031,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(mesemotion,"i"),
 
 #include <custom/script_def.inc>
+#include "mod_store_script_def.inc"
 
 	{nullptr,nullptr,nullptr},
 };

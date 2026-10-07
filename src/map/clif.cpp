@@ -6062,7 +6062,9 @@ void clif_skill_damage( const block_list& src, const block_list& dst, t_tick tic
 	packet.attackMT = sdelay;
 	packet.attackedMT = ddelay;
 
-	auto damage = std::min( static_cast<decltype(packet.damage)>( sdamage ), std::numeric_limits<decltype(packet.damage)>::max() );
+	// Clamp before casting: sdamage is 64-bit and the packet's field is not, so casting first wraps anything over the
+	// field's maximum to a negative number, which the client cannot draw. The std::min after it could not help.
+	auto damage = static_cast<decltype(packet.damage)>( cap_value( sdamage, static_cast<int64>( std::numeric_limits<decltype(packet.damage)>::min() ), static_cast<int64>( std::numeric_limits<decltype(packet.damage)>::max() ) ) );
 
 	if (battle_config.hide_woe_damage && map_flag_gvg(src.m)) {
 		packet.damage = static_cast<decltype(packet.damage)>(damage ? div : 0);

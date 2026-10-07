@@ -23,6 +23,7 @@
 #include "itemdb.hpp"
 #include "map.hpp"
 #include "mob.hpp"
+#include "mod_store.hpp"
 #include "pc.hpp"
 #include "script.hpp"
 #include "skill.hpp"
@@ -762,6 +763,304 @@ std::vector<std::pair<std::string, std::string>> file_list() {
 
 // ---------------------------------------------------------------------------
 // Entry points
+namespace {
+
+// ---------------------------------------------------------------------------
+// store: the mod's own data (mod_store.hpp)
+//
+//   store.get(path, default)   store.set(path, value)   store.inc(path, by)
+//   store.delete(path)         store.exists(path)       store.keys(path)
+//   store.count(path)          store.top(path, n)       store.used()
+//   store.limits()             store.char(unit)         store.account(unit)
+//
+// store.char(c.caster) and store.account(c.caster) return the same methods
+// for that player's character or account. Writes that fail return nil and a
+// reason; nothing here raises an error a hook didn't ask for.
+// ---------------------------------------------------------------------------
+
+mod_store::s_target store_target(lua_State* state) {
+	mod_store::s_target t;
+	t.mod = current_mod == "server" ? "" : current_mod;
+	t.scope = static_cast<mod_store::e_scope>(lua_tointeger(state, lua_upvalueindex(1)));
+	t.owner = static_cast<uint32>(lua_tointeger(state, lua_upvalueindex(2)));
+	return t;
+}
+
+std::string store_path(lua_State* state, int32 arg) {
+	size_t len = 0;
+	const char* text = luaL_optlstring(state, arg, "", &len);
+	return std::string(text, len);
+}
+
+int32 store_fail(lua_State* state, const std::string& error) {
+	lua_pushnil(state);
+	lua_pushstring(state, error.c_str());
+	return 2;
+}
+
+/// Write the Lua value at `index` under `path`: a table becomes a subtree.
+bool store_write(lua_State* state, const mod_store::s_target& t, const std::string& path, int32 index, int32 depth, std::string& error) {
+	index = lua_absindex(state, index);
+	mod_store::s_value value;
+	switch (lua_type(state, index)) {
+		case LUA_TBOOLEAN:
+			value.number = lua_toboolean(state, index) ? 1 : 0;
+			break;
+		case LUA_TNUMBER: {
+			int32 is_integer = 0;
+			value.number = lua_tointegerx(state, index, &is_integer);
+			if (!is_integer) {
+				error = "numbers in the store are integers";
+				return false;
+			}
+			break;
+		}
+		case LUA_TSTRING: {
+			size_t len = 0;
+			const char* text = lua_tolstring(state, index, &len);
+			value.is_string = true;
+			value.text.assign(text, len);
+			break;
+		}
+		case LUA_TTABLE: {
+			if (depth > mod_store::depth_limit()) {
+				error = "the table is nested too deeply";
+				return false;
+			}
+			lua_pushnil(state);
+			while (lua_next(state, index) != 0) {
+				std::string child;
+				if (lua_type(state, -2) == LUA_TNUMBER && lua_isinteger(state, -2))
+					child = std::to_string(lua_tointeger(state, -2));
+				else if (lua_type(state, -2) == LUA_TSTRING)
+					child = lua_tostring(state, -2);
+				else {
+					lua_pop(state, 2);
+					error = "table keys in the store are strings or integers";
+					return false;
+				}
+				if (!store_write(state, t, path + "." + child, -1, depth + 1, error)) {
+					lua_pop(state, 2);
+					return false;
+				}
+				lua_pop(state, 1);
+			}
+			return true;
+		}
+		default:
+			error = std::string("a ") + luaL_typename(state, index) + " can't be stored";
+			return false;
+	}
+	return mod_store::set(t, path, value, error);
+}
+
+void push_store_value(lua_State* state, const mod_store::s_value& value) {
+	if (value.is_string)
+		lua_pushlstring(state, value.text.data(), value.text.size());
+	else
+		lua_pushinteger(state, value.number);
+}
+
+/// A segment as the table key it was written from: "3" was the integer 3
+/// (store_write), so an array read back is an array again.
+void push_store_key(lua_State* state, const std::string& segment) {
+	bool integer = !segment.empty() && segment.size() <= 18
+		&& (segment == "0" || segment[0] != '0')
+		&& std::all_of(segment.begin(), segment.end(), [](char c) { return c >= '0' && c <= '9'; });
+	if (integer)
+		lua_pushinteger(state, std::stoll(segment));
+	else
+		lua_pushlstring(state, segment.data(), segment.size());
+}
+
+/// The value at a path, or everything under it as a table -- what store.set
+/// wrote, read back.
+int32 lua_store_get(lua_State* state) {
+	std::vector<std::pair<std::string, mod_store::s_value>> entries;
+	std::string error;
+	if (!mod_store::read(store_target(state), store_path(state, 1), entries, error) || entries.empty()) {
+		lua_settop(state, 2);  // the default, or nil
+		return 1;
+	}
+	if (entries.size() == 1 && entries[0].first.empty()) {
+		push_store_value(state, entries[0].second);
+		return 1;
+	}
+	lua_newtable(state);
+	const int32 root = lua_gettop(state);
+	for (const auto& entry : entries) {
+		lua_pushvalue(state, root);
+		size_t start = 0;
+		for (size_t dot = entry.first.find('.'); dot != std::string::npos; dot = entry.first.find('.', start)) {
+			push_store_key(state, entry.first.substr(start, dot - start));
+			lua_pushvalue(state, -1);
+			if (lua_gettable(state, -3) != LUA_TTABLE) {
+				lua_pop(state, 1);
+				lua_newtable(state);
+				lua_pushvalue(state, -2);  // key
+				lua_pushvalue(state, -2);  // the new table
+				lua_settable(state, -5);
+			}
+			lua_remove(state, -2);  // key
+			lua_remove(state, -2);  // parent
+			start = dot + 1;
+		}
+		push_store_key(state, entry.first.substr(start));
+		push_store_value(state, entry.second);
+		lua_settable(state, -3);
+		lua_pop(state, 1);
+	}
+	return 1;
+}
+
+int32 lua_store_set(lua_State* state) {
+	std::string error;
+	if (lua_isnoneornil(state, 2))
+		return store_fail(state, "set needs a value (use store.delete to remove one)");
+	if (!store_write(state, store_target(state), store_path(state, 1), 2, 1, error))
+		return store_fail(state, error);
+	lua_pushboolean(state, 1);
+	return 1;
+}
+
+int32 lua_store_inc(lua_State* state) {
+	int64 result = 0;
+	std::string error;
+	if (!mod_store::inc(store_target(state), store_path(state, 1), luaL_optinteger(state, 2, 1), result, error))
+		return store_fail(state, error);
+	lua_pushinteger(state, result);
+	return 1;
+}
+
+int32 lua_store_delete(lua_State* state) {
+	int32 removed = 0;
+	std::string error;
+	if (!mod_store::remove(store_target(state), store_path(state, 1), removed, error))
+		return store_fail(state, error);
+	lua_pushinteger(state, removed);
+	return 1;
+}
+
+int32 lua_store_exists(lua_State* state) {
+	bool found = false;
+	std::string error;
+	mod_store::exists(store_target(state), store_path(state, 1), found, error);
+	lua_pushboolean(state, found ? 1 : 0);
+	return 1;
+}
+
+int32 lua_store_keys(lua_State* state) {
+	std::vector<std::string> names;
+	std::string error;
+	if (!mod_store::keys(store_target(state), store_path(state, 1), names, error))
+		return store_fail(state, error);
+	lua_createtable(state, static_cast<int32>(names.size()), 0);
+	for (size_t i = 0; i < names.size(); ++i) {
+		lua_pushstring(state, names[i].c_str());
+		lua_rawseti(state, -2, static_cast<lua_Integer>(i + 1));
+	}
+	return 1;
+}
+
+int32 lua_store_count(lua_State* state) {
+	std::vector<std::string> names;
+	std::string error;
+	mod_store::keys(store_target(state), store_path(state, 1), names, error);
+	lua_pushinteger(state, static_cast<lua_Integer>(names.size()));
+	return 1;
+}
+
+/// store.top(path, n): an array of { name = ..., value = ... }, highest first.
+int32 lua_store_top(lua_State* state) {
+	std::vector<std::pair<std::string, int64>> rows;
+	std::string error;
+	lua_Integer n = luaL_optinteger(state, 2, 10);
+	if (!mod_store::top(store_target(state), store_path(state, 1), static_cast<size_t>(std::max<lua_Integer>(n, 0)), rows, error))
+		return store_fail(state, error);
+	lua_createtable(state, static_cast<int32>(rows.size()), 0);
+	for (size_t i = 0; i < rows.size(); ++i) {
+		lua_createtable(state, 0, 2);
+		lua_pushstring(state, rows[i].first.c_str());
+		lua_setfield(state, -2, "name");
+		lua_pushinteger(state, rows[i].second);
+		lua_setfield(state, -2, "value");
+		lua_rawseti(state, -2, static_cast<lua_Integer>(i + 1));
+	}
+	return 1;
+}
+
+int32 lua_store_used(lua_State* state) {
+	mod_store::s_target t = store_target(state);
+	bool ignored = false;
+	std::string error;
+	mod_store::exists(t, "_", ignored, error);  // loads the document on first use
+	lua_pushinteger(state, static_cast<lua_Integer>(mod_store::used(t)));
+	return 1;
+}
+
+int32 lua_store_limits(lua_State* state) {
+	lua_createtable(state, 0, 5);
+	set_int("global", static_cast<lua_Integer>(mod_store::limit(mod_store::SCOPE_GLOBAL)));
+	set_int("account", static_cast<lua_Integer>(mod_store::limit(mod_store::SCOPE_ACCOUNT)));
+	set_int("char", static_cast<lua_Integer>(mod_store::limit(mod_store::SCOPE_CHAR)));
+	set_int("value", static_cast<lua_Integer>(mod_store::value_limit()));
+	set_int("depth", static_cast<lua_Integer>(mod_store::depth_limit()));
+	return 1;
+}
+
+/// Push a table of the store's methods, bound to `scope` and `owner`.
+void push_store(lua_State* state, mod_store::e_scope scope, uint32 owner) {
+	static const luaL_Reg methods[] = {
+		{ "get", lua_store_get },       { "set", lua_store_set },
+		{ "inc", lua_store_inc },       { "delete", lua_store_delete },
+		{ "exists", lua_store_exists }, { "keys", lua_store_keys },
+		{ "count", lua_store_count },   { "top", lua_store_top },
+		{ "used", lua_store_used },     { nullptr, nullptr },
+	};
+	lua_createtable(state, 0, 12);
+	for (const luaL_Reg* m = methods; m->name != nullptr; ++m) {
+		lua_pushinteger(state, scope);
+		lua_pushinteger(state, owner);
+		lua_pushcclosure(state, m->func, 2);
+		lua_setfield(state, -2, m->name);
+	}
+}
+
+/// store.char(unit) / store.account(unit): `unit` is a hook's c.caster or
+/// c.target, and must be a player.
+int32 lua_store_scoped(lua_State* state, mod_store::e_scope scope) {
+	luaL_checktype(state, 1, LUA_TTABLE);
+	lua_getfield(state, 1, "id");
+	int32 id = static_cast<int32>(lua_tointeger(state, -1));
+	lua_pop(state, 1);
+	map_session_data* sd = map_id2sd(id);
+	if (sd == nullptr)
+		return store_fail(state, std::string("store.") + mod_store::scope_name(scope) + " needs a player");
+	push_store(state, scope, scope == mod_store::SCOPE_CHAR ? sd->status.char_id : sd->status.account_id);
+	return 1;
+}
+
+int32 lua_store_char(lua_State* state) {
+	return lua_store_scoped(state, mod_store::SCOPE_CHAR);
+}
+
+int32 lua_store_account(lua_State* state) {
+	return lua_store_scoped(state, mod_store::SCOPE_ACCOUNT);
+}
+
+void register_store() {
+	push_store(L, mod_store::SCOPE_GLOBAL, 0);
+	lua_pushcfunction(L, lua_store_limits);
+	lua_setfield(L, -2, "limits");
+	lua_pushcfunction(L, lua_store_char);
+	lua_setfield(L, -2, "char");
+	lua_pushcfunction(L, lua_store_account);
+	lua_setfield(L, -2, "account");
+	lua_setglobal(L, "store");
+}
+
+}  // namespace
+
 // ---------------------------------------------------------------------------
 
 void do_init_skill_lua() {
@@ -790,6 +1089,7 @@ void do_init_skill_lua() {
 	lua_register(L, "const", lua_constant);
 	lua_register(L, "log", lua_log);
 	lua_register(L, "print", lua_log);
+	register_store();
 	lua_sethook(L, count_hook, LUA_MASKCOUNT, 1000);
 
 	current_mod = "server";

@@ -1324,6 +1324,7 @@ extern int32 db_use_sqldbs;
 extern Sql* mmysql_handle;
 extern Sql* qsmysql_handle;
 extern Sql* logmysql_handle;
+extern Sql* qslogmysql_handle;
 #endif
 
 extern char barter_table[32];

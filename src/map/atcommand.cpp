@@ -42,6 +42,7 @@
 #include "log.hpp"
 #include "mail.hpp"
 #include "map.hpp"
+#include "mod_store.hpp"
 #include "mapreg.hpp"
 #include "mercenary.hpp"
 #include "mob.hpp"
@@ -11601,6 +11602,7 @@ ACMD_FUNC(macrochecker){
 }
 
 #include <custom/atcommand.inc>
+#include "mod_store_atcommand.inc"
 
 /**
  * Fills the reference of available commands in atcommand DBMap
@@ -11617,6 +11619,7 @@ void atcommand_basecommands(void) {
 	 **/
 	AtCommandInfo atcommand_base[] = {
 #include <custom/atcommand_def.inc>
+#include "mod_store_atcommand_def.inc"
 		ACMD_DEF(mapmove),
 		ACMD_DEF(where),
 		ACMD_DEF(jumpto),

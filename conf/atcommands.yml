@@ -948,6 +948,11 @@ Body:
   - Command: model
     Help: |
       Params:  <hair ID: 0-17> <hair color: 0-8> <clothes color: 0-4> - Changes your characters appearence.
+  - Command: modstore
+    Help: |
+      Params: <id> <mod> <global|account|char> <client path>
+      Answers a mod's client UI with what the mod keeps under 'client'
+      in its store, as @@reply lines (src/map/mod_store_atcommand.inc).
   - Command: monster
     Aliases:
       - spawn

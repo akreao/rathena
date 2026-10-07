@@ -215,6 +215,7 @@
     <ClInclude Include="elemental.hpp" />
     <ClInclude Include="extensions.hpp" />
     <ClInclude Include="skill_lua.hpp" />
+    <ClInclude Include="mod_store.hpp" />
     <ClInclude Include="guild.hpp" />
     <ClInclude Include="homunculus.hpp" />
     <ClInclude Include="instance.hpp" />
@@ -1510,6 +1511,7 @@
     <ClCompile Include="extensions.cpp" />
     <ClCompile Include="lua_vm.cpp" />
     <ClCompile Include="skill_lua.cpp" />
+    <ClCompile Include="mod_store.cpp" />
     <ClCompile Include="guild.cpp" />
     <ClCompile Include="homunculus.cpp" />
     <ClCompile Include="instance.cpp" />
