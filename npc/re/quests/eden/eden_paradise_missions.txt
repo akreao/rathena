@@ -11,6 +11,8 @@
 //=   Logistics Officer     29,35 and 37,96   30-item deliveries, hourly
 //=   Rigel, Aker, Ayla, Minmin               cave shortcuts for members
 //=                                           on a matching board hunt
+//=   Will-o'-Wisps (Payon Cave 4F) and Old Crates (Shipwreck 1F)
+//=                                           for missions 21019 and 21130
 //=
 //= Each board quest uses kRO's own quest id, so it shares its
 //= cooldown with the town daily of the same id. Cooldowns reset at
@@ -156,6 +158,17 @@ L_Mission:
 		setquest .q_id[.@i];
 		if (.q_id2[.@i] && checkquest(.q_id2[.@i], HAVEQUEST) < 0)
 			setquest .q_id2[.@i];
+		if (.q_need$[.@i] != "")
+			setd .q_need$[.@i], 0;
+		// Supplies the mission needs, topped up to the listed count.
+		if (.q_give$[.@i] != "") {
+			explode(.@p$, .q_give$[.@i], ",");
+			for (.@k = 0; .@k < getarraysize(.@p$); .@k += 2) {
+				.@c = atoi(.@p$[.@k + 1]) - countitem(atoi(.@p$[.@k]));
+				if (.@c > 0)
+					getitem atoi(.@p$[.@k]), .@c;
+			}
+		}
 		mes .@name$;
 		mes "- Mission accepted. -";
 		mes "- Report back to any -";
@@ -221,8 +234,19 @@ S_State:
 	.@i = getarg(0);
 	.@h = checkquest(.q_id[.@i], HUNTING);
 	.@h2 = (.q_id2[.@i] ? checkquest(.q_id2[.@i], HUNTING) : 2);
-	if (.@h == 2 && .@h2 == 2)
+	if (.@h == 2 && .@h2 == 2) {
+		// Finished only once the items and any other goal are there too.
+		if (.q_need$[.@i] != "" && getd(.q_need$[.@i]) < .q_needn[.@i])
+			return 3;
+		if (.q_items$[.@i] != "") {
+			explode(.@p$, .q_items$[.@i], ",");
+			for (.@k = 0; .@k < getarraysize(.@p$); .@k += 2) {
+				if (countitem(atoi(.@p$[.@k])) < atoi(.@p$[.@k + 1]))
+					return 3;
+			}
+		}
 		return 4;
+	}
 	if (.@h >= 0 || (.q_id2[.@i] && .@h2 >= 0))
 		return 3;
 	.@t = checkquest(.q_cd[.@i], PLAYTIME);
@@ -282,12 +306,16 @@ S_Drop:
 		erasequest .q_id[getarg(0)];
 	if (.q_id2[getarg(0)] && checkquest(.q_id2[getarg(0)], HAVEQUEST) >= 0)
 		erasequest .q_id2[getarg(0)];
+	if (.q_need$[getarg(0)] != "")
+		setd .q_need$[getarg(0)], 0;
 	return;
 
 // board, quest, cooldown, base level, area, title, goal, base EXP,
 // job EXP, Eden Coins, "item,count,..." handed in, "item,count,..." given.
 // .q_id2 is a second quest given and paid with the row's quest, for a hunt
-// with more targets than one quest can hold.
+// with more targets than one quest can hold. .q_give$ lists items handed out
+// on accept ("item,count,..."), and .q_need$/.q_needn a character variable
+// that must reach a value before the mission counts as finished.
 S_Row:
 	.@n = .rows;
 	.q_board[.@n] = getarg(0);
@@ -334,6 +362,10 @@ OnInit:
 	// 40~69 Mission Board
 	callsub S_Row, 2, 21122, 21121, 40, "Shipwreck", "Rescue Your Friend", "Hunt 20 Pirate Skeleton", 8600, 9600, 0, "", "";
 	callsub S_Row, 2, 21127, 21126, 40, "Shipwreck", "Kukre Liver for Dinner", "Hunt 10 Kukre", 6500, 6500, 0, "", "";
+	// [unverified] 21130: how the coins are handed out and hidden (crates in the wreck, 2 coins each) is this script's own
+	callsub S_Row, 2, 21130, 21129, 40, "Shipwreck", "Treasure, Made to Order", "Hide 10 Old Coins in the crates of the Shipwreck, 1F", 7000, 7000, 0, "", "";
+	.q_give$[.rows - 1] = "25074,10";
+	.q_need$[.rows - 1] = "eden_mb_coins"; .q_needn[.rows - 1] = 10;
 	callsub S_Row, 2, 21136, 21135, 40, "Shipwreck", "Clean Up the Wreck, 1F", "Hunt 10 Hydra", 9600, 8280, 0, "932,10,955,5,962,5", "";
 	// [unverified] 21138: kRO's 'Swift Pirate Skel' mapped to Swift Sailor Skeleton, treasure02's only champion
 	callsub S_Row, 2, 21138, 21137, 40, "Shipwreck", "Clean Up the Wreck, 2F", "Hunt 10 Whisper and 1 Swift Sailor Skeleton", 11800, 9600, 0, "", "";
@@ -362,6 +394,9 @@ OnInit:
 	callsub S_Row, 2, 21215, 21216, 60, "Morroc", "The Sphinx's Workers", "Hunt 15 Zerom and 15 Requiem", 19450, 20090, 0, "", "";
 	callsub S_Row, 2, 21217, 21218, 60, "Morroc", "The Sphinx's Secret", "Hunt 15 Marduk and 15 Pasana", 25640, 24210, 0, "25073,10", "";
 	callsub S_Row, 2, 21017, 21018, 50, "Payon Cave", "Soul Cleansing Ritual", "Hunt 15 Munak and 15 Bongun", 13200, 12300, 0, "609,15", "";
+	// [unverified] 21019: the liquor is handed out by the board, not Payon's grandfather, and the wisps are this script's own (Payon Cave 4F)
+	callsub S_Row, 2, 21019, 21020, 50, "Payon Cave", "Sorrow Soothed with a Drink", "Calm the Will-o'-Wisps of Payon Cave 4F with Ha Soju and bring back 10 Last Breath", 9600, 9600, 0, "25079,10", "";
+	.q_give$[.rows - 1] = "25078,10";
 	callsub S_Row, 2, 21021, 21022, 50, "Payon Cave", "Traces of Great Magic", "Hunt 12 Sohee", 10480, 12400, 0, "25188,3", "";
 	callsub S_Row, 2, 21103, 21102, 55, "Geffen Dungeon", "Hunter Fly Hunt", "Hunt 10 Hunter Fly", 8000, 6800, 0, "", "";
 	callsub S_Row, 2, 21106, 21105, 55, "Geffen Dungeon", "Ghoul and Jakk Hunt", "Hunt 10 Ghoul and 10 Jakk", 14800, 13660, 0, "", "";
@@ -691,6 +726,97 @@ geffen,129,46,5	script	Minmin#edmb	4_F_EDEN_OFFICER,{
 	callfunc "F_EdenMB_Shortcut", "Minmin", "gefenia01", 58, 169, "Geffenia", 21393;
 }
 
+// "Sorrow Soothed with a Drink" (21019): a member on the mission pours a
+// Ha Soju for a Will-o'-Wisp in Payon Cave 4F and gets its Last Breath.
+// The wisp fades for a while afterwards. Positions and sprite [unverified].
+-	script	Will-o'-Wisp#edmb	-1,{
+	if (!getextension("eden_rework_2021"))
+		end;
+	if (checkquest(21019, HAVEQUEST) != 1) {
+		mes "A pale, cold flame flickers in the dark. It seems to be waiting for something.";
+		close;
+	}
+	if (countitem(25079) >= 10) {
+		mes "You already have 10 Last Breath. Take them to an Eden Group mission board.";
+		close;
+	}
+	if (countitem(25078) < 1) {
+		mes "The flame flickers, waiting. You have no Ha Soju left to offer it.";
+		mes "Taking the mission again at an Eden Group mission board will top your Ha Soju back up.";
+		close;
+	}
+	mes "A pale, cold flame flickers in the dark. Pour it a cup of Ha Soju?";
+	next;
+	if (select("Pour a cup:Leave it be") == 2)
+		close;
+	progressbar "ffff00", 3;
+	delitem 25078, 1;
+	getitem 25079, 1;
+	mes "The flame sways gently and fades, leaving a breath of cold air in your hand.";
+	close2;
+	disablenpc strnpcinfo(0);
+	sleep 30000;
+	if (getextension("eden_rework_2021"))
+		enablenpc strnpcinfo(0);
+	end;
+}
+pay_dun03,57,231,0	duplicate(Will-o'-Wisp#edmb)	Will-o'-Wisp#edmb1	4_NFWISP
+pay_dun03,132,247,0	duplicate(Will-o'-Wisp#edmb)	Will-o'-Wisp#edmb2	4_NFWISP
+pay_dun03,145,139,0	duplicate(Will-o'-Wisp#edmb)	Will-o'-Wisp#edmb3	4_NFWISP
+pay_dun03,201,128,0	duplicate(Will-o'-Wisp#edmb)	Will-o'-Wisp#edmb4	4_NFWISP
+pay_dun03,204,243,0	duplicate(Will-o'-Wisp#edmb)	Will-o'-Wisp#edmb5	4_NFWISP
+pay_dun03,206,179,0	duplicate(Will-o'-Wisp#edmb)	Will-o'-Wisp#edmb6	4_NFWISP
+pay_dun03,208,220,0	duplicate(Will-o'-Wisp#edmb)	Will-o'-Wisp#edmb7	4_NFWISP
+pay_dun03,240,201,0	duplicate(Will-o'-Wisp#edmb)	Will-o'-Wisp#edmb8	4_NFWISP
+
+// "Treasure, Made to Order" (21130): a member on the mission hides 2 Old
+// Coins in each of five crates on the Shipwreck's 1st floor.
+// eden_mb_coins counts the coins hidden, eden_mb_crates the crates used.
+// Positions and sprite [unverified].
+-	script	Old Crate#edmb	-1,{
+	if (!getextension("eden_rework_2021"))
+		end;
+	.@bit = 1 << atoi(charat(strnpcinfo(2), 4));
+	if (checkquest(21130, HAVEQUEST) != 1) {
+		mes "A battered old crate, half full of seawater.";
+		close;
+	}
+	if (!eden_mb_coins)
+		eden_mb_crates = 0;
+	if (eden_mb_crates & .@bit) {
+		mes "You've already hidden coins in this crate.";
+		close;
+	}
+	if (eden_mb_coins >= 10) {
+		mes "All 10 coins are hidden. Report to an Eden Group mission board.";
+		close;
+	}
+	if (countitem(25074) < 2) {
+		mes "You need 2 Old Coins to hide here.";
+		mes "Taking the mission again at an Eden Group mission board will top your coins back up.";
+		close;
+	}
+	mes "A battered old crate. Hide 2 Old Coins in it for treasure hunters to find?";
+	next;
+	if (select("Hide the coins:Leave it") == 2)
+		close;
+	progressbar "ffff00", 2;
+	delitem 25074, 2;
+	eden_mb_crates |= .@bit;
+	eden_mb_coins += 2;
+	if (eden_mb_coins >= 10) {
+		eden_mb_crates = 0;
+		mes "That's the last of them. Report to an Eden Group mission board.";
+	} else
+		mes "You tuck the coins under the rotting planks. " + (10 - eden_mb_coins) + " to go.";
+	close;
+}
+treasure01,21,163,0	duplicate(Old Crate#edmb)	Old Crate#edmb1	4_WOODBOX
+treasure01,69,110,0	duplicate(Old Crate#edmb)	Old Crate#edmb2	4_WOODBOX
+treasure01,71,30,0	duplicate(Old Crate#edmb)	Old Crate#edmb3	4_WOODBOX
+treasure01,94,164,0	duplicate(Old Crate#edmb)	Old Crate#edmb4	4_WOODBOX
+treasure01,173,50,0	duplicate(Old Crate#edmb)	Old Crate#edmb5	4_WOODBOX
+
 // Shows either the old Eden missions or this file's NPCs, never both.
 -	script	#eden_rework_missions	-1,{
 	end;
@@ -700,7 +826,10 @@ OnInit:
 		"1~39 Mission Board#edmb1b", "40~69 Mission Board#edmb2b", "70~99 Mission Board#edmb3b",
 		"100~110 Mission Board#edmb4b", "120~140 Mission Board#edmb5b", "Advanced Mission Board#edmb6b",
 		"Logistics Officer#edmb1", "Logistics Officer#edmb2",
-		"Rigel#edmb", "Aker#edmb", "Ayla#edmb", "Minmin#edmb";
+		"Rigel#edmb", "Aker#edmb", "Ayla#edmb", "Minmin#edmb",
+		"Will-o'-Wisp#edmb1", "Will-o'-Wisp#edmb2", "Will-o'-Wisp#edmb3", "Will-o'-Wisp#edmb4",
+		"Will-o'-Wisp#edmb5", "Will-o'-Wisp#edmb6", "Will-o'-Wisp#edmb7", "Will-o'-Wisp#edmb8",
+		"Old Crate#edmb1", "Old Crate#edmb2", "Old Crate#edmb3", "Old Crate#edmb4", "Old Crate#edmb5";
 	// The old boards (11-25.txt to 91-99.txt), their reward NPCs, and the
 	// old 100-140 mission NPCs (eden_100_111.txt to eden_131_140.txt).
 	setarray .@old$, "Mission [11 - 25]#Tuto", "Spike",

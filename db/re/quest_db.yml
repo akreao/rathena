@@ -12911,6 +12911,8 @@ Body:
   - Id: 21018
     Title: Soul Cleanse Ritual-break
     TimeLimit: 4h
+  - Id: 21019
+    Title: Sorrow Soothed with a Drink
   - Id: 21020
     Title: Break sorrow with a drink
     TimeLimit: 4h
@@ -13164,6 +13166,8 @@ Body:
   - Id: 21129
     Title: Economy Logic Without (Standby)
     TimeLimit: 4h
+  - Id: 21130
+    Title: "Treasure, Made to Order"
   - Id: 21134
     Title: Promise to the dead
     TimeLimit: 4h
