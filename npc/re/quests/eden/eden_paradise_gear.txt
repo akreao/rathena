@@ -3,7 +3,10 @@
 //===== Description: =========================================
 //= kRO's April 2021 Eden Group (Paradise Group) rework hands out
 //= Paradise gear from four Administrators in the armory of
-//= moc_para01. This file adds them:
+//= moc_para01, and Instructors Boya and Ur send new members to them
+//= (quests 17528-17537). This file adds:
+//=   Instructor Ur         23,35   basic, shadow and advanced gear quests
+//=   Instructor Boya       25,35   entry to the basic and shadow gear quests
 //=   Administrator BK      110,79  beginner weapon and armor
 //=   Administrator Michael 110,83  intermediate and advanced weapons
 //=   Administrator Thorn   110,87  advanced armor
@@ -11,9 +14,11 @@
 //=
 //= Off by default. It runs only when the server extension
 //= "eden_paradise_gear" is on (db/import/extension_db.yml, or a
-//= Ragnarok Offline mod's db/extension_db.yml). While it is on, the
-//= old Thorn, BK and Michael of the Eden Team gear chain are hidden
-//= unless the extension's retire_old_npcs value is 0.
+//= Ragnarok Offline mod's db/extension_db.yml). It is all or nothing:
+//= while it is on, every NPC of the old Eden Team gear quests in
+//= eden_quests.txt is hidden (old Boya and Ur, their field NPCs and
+//= dispatched instructors, old Thorn, BK and Michael), and these take
+//= their place. While it is off, only the old ones are shown.
 //=
 //= Sources: the costs, level gates, positions and sprites match
 //= kRO as documented by hazyforest, Inven news 254210/254590,
@@ -157,8 +162,152 @@ function	script	F_EdenPara_GiveMissing	{
 	return .@n;
 }
 
+moc_para01,23,35,5	script	Instructor Ur#para	4_M_KNIGHT_BLACK,{
+	.@name$ = "[Ur]";
+	if (isbegin_quest(17535) == 1) {
+		changequest 17535, 17528;
+		mes .@name$;
+		mes "Boya sent you about basic gear?";
+		mes "The Administrators in the armory hand it out.";
+		mes "Meet them all, starting with";
+		mes "^0000FFAdministrator Thorn^000000, who handles armor.";
+		close;
+	}
+	if (isbegin_quest(17531) == 1) {
+		completequest 17531;
+		mes .@name$;
+		mes "Got your basic gear? Good.";
+		mes "The Administrators will hand it out";
+		mes "again whenever you need it.";
+		close;
+	}
+	mes .@name$;
+	mes "I look after our members' equipment.";
+	mes "What do you need?";
+	next;
+	switch (select("Basic gear:Shadow gear:Advanced gear:Never mind")) {
+	case 1:
+		mes .@name$;
+		if (isbegin_quest(17531) == 2) {
+			mes "You've met the Administrators already.";
+			mes "Go straight to them in the armory.";
+			close;
+		}
+		if (isbegin_quest(17528) || isbegin_quest(17529) || isbegin_quest(17530) || isbegin_quest(17531)) {
+			mes "You're already on your way.";
+			mes "Check your quest log.";
+			close;
+		}
+		setquest 17528;
+		mes "Meet the Administrators in the armory,";
+		mes "starting with ^0000FFAdministrator Thorn^000000.";
+		close;
+	case 2:
+		mes .@name$;
+		if (isbegin_quest(17534) == 2) {
+			mes "You know where the shadow gear is:";
+			mes "^0000FFAdministrator Emil^000000 in the armory.";
+			close;
+		}
+		if (isbegin_quest(17532) || isbegin_quest(17533) || isbegin_quest(17534)) {
+			mes "You're already on your way.";
+			mes "Check your quest log.";
+			close;
+		}
+		setquest 17532;
+		mes "Shadow gear is Boya's department.";
+		mes "Talk to ^0000FFInstructor Boya^000000, next to me.";
+		close;
+	case 3:
+		mes .@name$;
+		if (callfunc("F_EdenPara_Tier") < 3) {
+			mes "Advanced gear is for level 100 members";
+			mes "who have taken their 3rd job.";
+			close;
+		}
+		if (isbegin_quest(17536) == 0)
+			setquest 17536;
+		if (isbegin_quest(17537) == 0)
+			setquest 17537;
+		if (isbegin_quest(17536) == 2 && isbegin_quest(17537) == 2) {
+			mes "You've had your first advanced set.";
+			mes "More cost Eden Group Coins:";
+			mes "ask Thorn or Michael.";
+			close;
+		}
+		mes "Your first advanced gear is made to order.";
+		if (isbegin_quest(17536) == 1)
+			mes "Bring ^0000FF15 Elastic Band^000000 and ^0000FF3 Blue Hair^000000 to ^0000FFThorn^000000 for armor.";
+		if (isbegin_quest(17537) == 1)
+			mes "Bring ^0000FF15 Old Pick^000000 to ^0000FFMichael^000000 for a weapon.";
+		close;
+	case 4:
+		close;
+	}
+}
+
+moc_para01,25,35,4	script	Instructor Boya#para	4_M_KNIGHT_GOLD,{
+	.@name$ = "[Boya]";
+	if (isbegin_quest(17532) == 1) {
+		changequest 17532, 17533;
+		mes .@name$;
+		mes "Ur sent you for shadow gear?";
+		mes "Go and see ^0000FFAdministrator Emil^000000";
+		mes "in the armory.";
+		close;
+	}
+	if (isbegin_quest(17534) == 1) {
+		completequest 17534;
+		mes .@name$;
+		mes "Emil sorted you out? Then it's on record.";
+		mes "Go back to her whenever a rental runs out.";
+		close;
+	}
+	mes .@name$;
+	mes "New here? Don't go out there";
+	mes "without decent gear.";
+	next;
+	switch (select("Basic gear:Shadow gear:Never mind")) {
+	case 1:
+		mes .@name$;
+		if (isbegin_quest(17531) == 2) {
+			mes "You've had your basic gear already.";
+			mes "The Administrators in the armory";
+			mes "will give it to you again.";
+			close;
+		}
+		if (isbegin_quest(17535) == 0 && !isbegin_quest(17528) && !isbegin_quest(17529) && !isbegin_quest(17530) && !isbegin_quest(17531))
+			setquest 17535;
+		mes "Talk to ^0000FFInstructor Ur^000000, right next to me.";
+		mes "He'll sort out your basic gear.";
+		close;
+	case 2:
+		mes .@name$;
+		if (isbegin_quest(17534) == 2) {
+			mes "^0000FFAdministrator Emil^000000 lends it out,";
+			mes "in the armory.";
+			close;
+		}
+		if (!isbegin_quest(17532) && !isbegin_quest(17533) && !isbegin_quest(17534))
+			setquest 17533;
+		mes "Go and see ^0000FFAdministrator Emil^000000";
+		mes "in the armory.";
+		close;
+	case 3:
+		close;
+	}
+}
+
 moc_para01,110,79,3	script	Administrator BK#para	4_M_REPAIR,{
 	.@name$ = "[Administrator BK]";
+	if (isbegin_quest(17530) == 1) {
+		changequest 17530, 17531;
+		mes .@name$;
+		mes "Michael sent you? Then let's get you";
+		mes "some gear you can use right now.";
+		mes "Once you have it, report to ^0000FFInstructor Ur^000000.";
+		next;
+	}
 	mes .@name$;
 	mes "I look after the beginner gear.";
 	mes "Members from ^0000FFlevel 10^000000 can take";
@@ -220,6 +369,16 @@ moc_para01,110,79,3	script	Administrator BK#para	4_M_REPAIR,{
 
 moc_para01,110,83,3	script	Administrator Michael#para	4_M_RUSMAN1,{
 	.@name$ = "[Administrator Michael]";
+	if (isbegin_quest(17529) == 1) {
+		changequest 17529, 17530;
+		mes .@name$;
+		mes "Thorn sent you round? I look after";
+		mes "the job weapons, the advanced ones";
+		mes "included. Come back when you're ready.";
+		mes "Now go and see ^0000FFAdministrator BK^000000";
+		mes "for gear you can use today.";
+		close;
+	}
 	.@tier = callfunc("F_EdenPara_Tier");
 	mes .@name$;
 	mes "I handle the job weapons.";
@@ -266,7 +425,12 @@ moc_para01,110,83,3	script	Administrator Michael#para	4_M_RUSMAN1,{
 		// [unverified] A 2023 twRO guide says Eden gear exchanges also take
 		// 3 Kobold Hair (1034). No kRO source lists it for weapons, so it
 		// isn't charged here.
-		if (!EDEN_PARA_ADV_WEAPON) {
+		if (isbegin_quest(17537) == 0) {
+			mes "Your first advanced weapon needs an";
+			mes "order from ^0000FFInstructor Ur^000000. Ask him first.";
+			close;
+		}
+		if (isbegin_quest(17537) == 1) {
 			mes "Your first advanced weapon is made";
 			mes "from ^0000FF15 Old Pick^000000.";
 			mes "Pitman's mine is where to find them.";
@@ -281,7 +445,7 @@ moc_para01,110,83,3	script	Administrator Michael#para	4_M_RUSMAN1,{
 				close;
 			}
 			delitem 7318, 15;
-			EDEN_PARA_ADV_WEAPON = 1;
+			completequest 17537;
 		} else {
 			mes "Another advanced weapon costs";
 			mes "^0000FF10 Eden Group Coins^000000.";
@@ -307,6 +471,15 @@ moc_para01,110,83,3	script	Administrator Michael#para	4_M_RUSMAN1,{
 
 moc_para01,110,87,3	script	Administrator Thorn#para	2_M_OLDBLSMITH,{
 	.@name$ = "[Administrator Thorn]";
+	if (isbegin_quest(17528) == 1) {
+		changequest 17528, 17529;
+		mes .@name$;
+		mes "A new member, eh? I handle the armor.";
+		mes "Come back for the advanced set";
+		mes "once you've reached level 100.";
+		mes "Next, meet ^0000FFAdministrator Michael^000000.";
+		close;
+	}
 	mes .@name$;
 	mes "I make the ^0000FFadvanced armor^000000";
 	mes "for level 100 members with a 3rd";
@@ -333,7 +506,13 @@ moc_para01,110,87,3	script	Administrator Thorn#para	2_M_OLDBLSMITH,{
 	// [unverified] A 2023 twRO guide says Eden gear exchanges take 3 Kobold
 	// Hair; that may be this same 3 Blue Hair (Cobold_Hair, 1034). It isn't
 	// added to the coin purchases.
-	if (!EDEN_PARA_ADV_ARMOR) {
+	if (isbegin_quest(17536) == 0) {
+		mes .@name$;
+		mes "Your first set needs an order";
+		mes "from ^0000FFInstructor Ur^000000. Ask him first.";
+		close;
+	}
+	if (isbegin_quest(17536) == 1) {
 		mes .@name$;
 		mes "Your first set is made from";
 		mes "^0000FF15 Elastic Band^000000 and ^0000FF3 Blue Hair^000000.";
@@ -353,7 +532,7 @@ moc_para01,110,87,3	script	Administrator Thorn#para	2_M_OLDBLSMITH,{
 		}
 		delitem 7200, 15;
 		delitem 1034, 3;
-		EDEN_PARA_ADV_ARMOR = 1;
+		completequest 17536;
 		for (.@i = 0; .@i < getarraysize(.@pieces); ++.@i)
 			getitembound .@pieces[.@i], 1, BOUND_CHAR;
 		mes "Here's the full set. Wear it well.";
@@ -390,6 +569,14 @@ moc_para01,110,91,3	script	Administrator Emil#para	1_F_GYPSY,{
 	// Rental length; the extension can change it. 72 hours matches every
 	// source but one (Inven 254590 calls advanced shadow gear unlimited).
 	.@hours = getextensionvalue("eden_paradise_gear", "shadow_rental_hours", 72);
+	if (isbegin_quest(17533) == 1) {
+		changequest 17533, 17534;
+		mes .@name$;
+		mes "Boya sent you? Take what you need,";
+		mes "then let ^0000FFInstructor Boya^000000 know,";
+		mes "so the loan is on record.";
+		next;
+	}
 	mes .@name$;
 	mes "I lend out ^0000FFshadow gear^000000 for " + .@hours + " hours.";
 	mes "The basic set is free from level 10.";
@@ -467,22 +654,24 @@ moc_para01,110,91,3	script	Administrator Emil#para	1_F_GYPSY,{
 	}
 }
 
-// Shows the Administrators only while the extension is on, and hides the
-// old Eden Team gear NPCs they replace.
+// Shows either the old Eden Team gear quests or this file's NPCs, never both.
 -	script	#eden_paradise_gear	-1,{
 	end;
 OnInit:
-	setarray .@new$, "Administrator BK#para", "Administrator Michael#para", "Administrator Thorn#para", "Administrator Emil#para";
-	setarray .@old$, "Weapons Expert BK#2nd11", "Administrator Michael", "Blacksmith Thorn#2nd10";
+	setarray .@new$, "Instructor Ur#para", "Instructor Boya#para",
+		"Administrator BK#para", "Administrator Michael#para", "Administrator Thorn#para", "Administrator Emil#para";
+	// Every NPC of the old gear quests in eden_quests.txt, except the Chef.
+	setarray .@old$, "Instructor Boya#para01", "Talking Dog#para03", "Timid Cat#para04",
+		"Eden Member Karl#para05", "Eden Member Cloud#para06", "Eden Member Hooksha", "Eden Member Callandiva",
+		"Instructor Ur#2nd01", "Dispatched Instructor#02", "Instructor Romeo#2nd02", "Dispatched Instructor#03",
+		"Dispatched Instructor#04", "Dispatched Instructor#05", "Dispatched Instructor#06", "Dispatched Instructor#07",
+		"Dispatched Instructor#08", "Administrator Michael", "Blacksmith Thorn#2nd10", "Weapons Expert BK#2nd11";
 
-	if (!getextension("eden_paradise_gear")) {
-		for (.@i = 0; .@i < getarraysize(.@new$); ++.@i)
-			disablenpc .@new$[.@i];
-		end;
-	}
-	if (getextensionvalue("eden_paradise_gear", "retire_old_npcs", 1)) {
-		for (.@i = 0; .@i < getarraysize(.@old$); ++.@i)
-			disablenpc .@old$[.@i];
-	}
+	if (getextension("eden_paradise_gear"))
+		copyarray .@hide$[0], .@old$[0], getarraysize(.@old$);
+	else
+		copyarray .@hide$[0], .@new$[0], getarraysize(.@new$);
+	for (.@i = 0; .@i < getarraysize(.@hide$); ++.@i)
+		disablenpc .@hide$[.@i];
 	end;
 }

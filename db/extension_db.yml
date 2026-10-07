@@ -127,25 +127,21 @@ Body:
         Description: Highest rate a script may set, in percent.
 
   - Id: eden_paradise_gear
-    Name: Eden Group Paradise gear Administrators (kRO 2021)
+    Name: Eden Group gear from kRO's 2021 rework
     Description: |
-      Adds kRO's April 2021 Eden Group gear NPCs to moc_para01
-      (npc/re/quests/eden/eden_paradise_gear.txt): Administrator BK
-      (beginner weapon and armor), Michael (intermediate and advanced
-      weapons), Thorn (advanced armor) and Emil (shadow gear rentals).
-      Advanced gear costs Old Pick, Elastic Band and Blue Hair the first
-      time, then Eden Group Coins. Renewal only.
-      While on, the old Eden Team gear NPCs (Weapons Expert BK, Blacksmith
-      Thorn, Administrator Michael) are hidden unless retire_old_npcs is 0.
+      Replaces the Eden Group gear quests on moc_para01 with kRO's April
+      2021 version (npc/re/quests/eden/eden_paradise_gear.txt). New
+      Instructors Ur and Boya send members, through quests 17528-17537, to
+      Administrator BK (beginner weapon and armor), Michael (intermediate
+      and advanced weapons), Thorn (advanced armor) and Emil (shadow gear
+      rentals). Advanced gear costs Old Pick, Elastic Band and Blue Hair
+      the first time, then Eden Group Coins. Renewal only.
+      All or nothing: while on, every NPC of the old Eden Team gear quests
+      (old Boya and Ur, their field NPCs and dispatched instructors, old
+      Thorn, BK and Michael) is hidden.
       Off is stock rAthena: the new NPCs are hidden and the old ones stay.
     Enabled: false
     Values:
-      - Key: retire_old_npcs
-        Type: Int
-        Default: 1
-        Min: 0
-        Max: 1
-        Description: 1 hides the old Eden Team gear NPCs the Administrators replace; 0 keeps them.
       - Key: shadow_rental_hours
         Type: Int
         Default: 72

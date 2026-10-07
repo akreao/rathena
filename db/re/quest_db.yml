@@ -12293,6 +12293,26 @@ Body:
   - Id: 17527
     Title: "[Cooldown] Sanctuary Purification"
     TimeLimit: 4h
+  - Id: 17528
+    Title: Eden Group Basic Gear
+  - Id: 17529
+    Title: Eden Group Basic Gear
+  - Id: 17530
+    Title: Eden Group Basic Gear
+  - Id: 17531
+    Title: Eden Group Basic Gear
+  - Id: 17532
+    Title: Eden Group Shadow Gear
+  - Id: 17533
+    Title: Eden Group Shadow Gear
+  - Id: 17534
+    Title: Eden Group Shadow Gear
+  - Id: 17535
+    Title: Eden Group Basic Gear
+  - Id: 17536
+    Title: Eden Group Advanced Gear (Armor)
+  - Id: 17537
+    Title: Eden Group Advanced Gear (Weapon)
   - Id: 17566
     Title: (Standby) Code name! Is it a star button?
     TimeLimit: 4h
