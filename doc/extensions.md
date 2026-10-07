@@ -91,3 +91,4 @@ server restarts (the app's **Apply**).
 |---|---|
 | `pc_drop_item_event` | Fires an `OnPCDropItemEvent` script event for each item a monster drops for a player |
 | `map_mob_count_rate` | Enables `setmapmobcountrate`, which scales the monster count of every spawn line on one map |
+| `eden_paradise_gear` | Adds the kRO 2021 Eden Group gear Administrators (BK, Michael, Thorn, Emil) to moc_para01 and hides the old Eden Team gear NPCs |

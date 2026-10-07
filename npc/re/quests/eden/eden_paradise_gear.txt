@@ -1,0 +1,482 @@
+//===== rAthena Script =======================================
+//= Eden Group: Paradise gear Administrators
+//===== Description: =========================================
+//= kRO's April 2021 Eden Group (Paradise Group) rework hands out
+//= Paradise gear from four Administrators in the armory of
+//= moc_para01. This file adds them:
+//=   Administrator BK      110,79  beginner weapon and armor
+//=   Administrator Michael 110,83  intermediate and advanced weapons
+//=   Administrator Thorn   110,87  advanced armor
+//=   Administrator Emil    110,91  shadow gear rentals
+//=
+//= Off by default. It runs only when the server extension
+//= "eden_paradise_gear" is on (db/import/extension_db.yml, or a
+//= Ragnarok Offline mod's db/extension_db.yml). While it is on, the
+//= old Thorn, BK and Michael of the Eden Team gear chain are hidden
+//= unless the extension's retire_old_npcs value is 0.
+//=
+//= Sources: the costs, level gates, positions and sprites match
+//= kRO as documented by hazyforest, Inven news 254210/254590,
+//= Divine Pride quests 17536/17537 and the kRO client's navigation
+//= table. Anything else is marked [unverified] where it is used.
+//= The dialogue is written for this script, not translated from kRO.
+//===== Changelogs: ==========================================
+//= 1.0 First version.
+//============================================================
+
+// Returns the highest Paradise gear tier the attached player qualifies for:
+//   0 = none, 1 = beginner (Lv10), 2 = intermediate (Lv45, 2nd or
+//   extended job), 3 = advanced (Lv100, 3rd or extended job).
+function	script	F_EdenPara_Tier	{
+	.@line = eaclass() & EAJ_UPPERMASK;
+	.@base = eaclass() & EAJ_BASEMASK;
+
+	// Advanced: any 3rd or 4th job, or an extended job that has no 3rd job.
+	// Ninja and Gunslinger don't count: the advanced weapons need
+	// Kagerou/Oboro and Rebellion. [unverified: kRO's exact job list]
+	if (BaseLevel >= 100 && ((eaclass() & EAJL_THIRD) || .@line == EAJ_KAGEROUOBORO || .@line == EAJ_REBELLION || .@base == EAJ_SUMMONER))
+		return 3;
+	// Intermediate: any 2nd job (includes Super Novice and Star Gladiator),
+	// or Ninja, Gunslinger and Summoner.
+	if (BaseLevel >= 45 && ((eaclass() & EAJL_2) || .@base == EAJ_NINJA || .@base == EAJ_GUNSLINGER || .@base == EAJ_SUMMONER))
+		return 2;
+	if (BaseLevel >= 10)
+		return 1;
+	return 0;
+}
+
+// Returns a job weapon for the attached player, or 0 if the job has none.
+//   getarg(0): 2 = intermediate (2Para), 3 = advanced (3Para),
+//              4 = advanced shadow weapon
+//   getarg(1): 0 or 1, which of the job's two weapons (tiers 2 and 3)
+function	script	F_EdenPara_Weapon	{
+	.@line = eaclass() & EAJ_UPPERMASK;
+	.@male = (Sex == SEX_MALE);
+
+	switch (getarg(0)) {
+	case 2:
+		switch (.@line) {
+		case EAJ_KNIGHT:		setarray .@w, 630014, 600020; break;	// 2Para_Lance_KN, 2Para_T_Sword_KN
+		case EAJ_CRUSADER:		setarray .@w, 500033, 530017; break;	// 2Para_Sword_CR, 2Para_Spear_CR
+		case EAJ_BLACKSMITH:		setarray .@w, 520011, 620011; break;	// 2Para_Axe_BS, 2Para_T_Axe_BS
+		case EAJ_ALCHEMIST:		setarray .@w, 590026, 500034; break;	// 2Para_Mace_AM, 2Para_Sword_AM
+		case EAJ_ASSASSIN:		setarray .@w, 610024, 610025; break;	// 2Para_Katar1_AS, 2Para_Katar2_AS
+		case EAJ_ROGUE:			setarray .@w, 510036, 700037; break;	// 2Para_Dagger_RG, 2Para_Bow_RG
+		case EAJ_WIZARD:		setarray .@w, 550034, 550035; break;	// 2Para_Staff_WZ, 2Para_Wand_WZ
+		case EAJ_SAGE:			setarray .@w, 540027, 540028; break;	// 2Para_Book1_SA, 2Para_Book2_SA
+		case EAJ_PRIEST:		setarray .@w, 590027, 550036; break;	// 2Para_Mace_PR, 2Para_Rod_PR
+		case EAJ_MONK:			setarray .@w, 560022, 560023; break;	// 2Para_Knuckle_MO, 2Para_Claw_MO
+		case EAJ_HUNTER:		setarray .@w, 700038, 700039; break;	// 2Para_Bow1_HT, 2Para_Bow2_HT
+		case EAJ_BARDDANCER:		setarray .@w, 700040, (.@male ? 570021 : 580021); break;	// 2Para_Bow_BD, 2Para_Violin_BA / 2Para_Rope_DC
+		case EAJ_NINJA:
+		case EAJ_KAGEROUOBORO:		setarray .@w, 650010, 650011; break;	// 2Para_Humma1_NJ, 2Para_Humma2_NJ
+		case EAJ_GUNSLINGER:
+		case EAJ_REBELLION:		setarray .@w, 810003, 800005; break;	// 2Para_Rifle_GS, 2Para_Revolver_GS
+		case EAJ_STAR_GLADIATOR:	setarray .@w, 540029, 540030; break;	// 2Para_Book1_SG, 2Para_Book2_SG
+		case EAJ_SOUL_LINKER:		setarray .@w, 510037, 550037; break;	// 2Para_Dagger_SL, 2Para_Rod_SL
+		case EAJ_SUMMONER:
+		case EAJ_SPIRIT_HANDLER:	setarray .@w, 550038, 550039; break;	// 2Para_Foxtail1_SU, 2Para_Foxtail2_SU
+		case EAJ_SUPER_NOVICE:		setarray .@w, 500035, 550040; break;	// 2Para_Sword_NV, 2Para_Rod_NV
+		}
+		break;
+	case 3:
+		switch (.@line) {
+		case EAJ_KNIGHT:		setarray .@w, 630015, 600021; break;	// 3Para_Lance_RK, 3Para_T_Sword_RK
+		case EAJ_CRUSADER:		setarray .@w, 500036, 530018; break;	// 3Para_Sword_LG, 3Para_Spear_LG
+		case EAJ_BLACKSMITH:		setarray .@w, 520012, 620012; break;	// 3Para_Axe_NC, 3Para_T_Axe_NC
+		case EAJ_ALCHEMIST:		setarray .@w, 590028, 500037; break;	// 3Para_Mace_GN, 3Para_Sword_GN
+		case EAJ_ASSASSIN:		setarray .@w, 610026, 610027; break;	// 3Para_Katar1_GC, 3Para_Katar2_GC
+		case EAJ_ROGUE:			setarray .@w, 510038, 700041; break;	// 3Para_Dagger_SC, 3Para_Bow_SC
+		case EAJ_WIZARD:		setarray .@w, 640023, 640024; break;	// 3Para_Staff_WL, 3Para_Wand_WL
+		case EAJ_SAGE:			setarray .@w, 540031, 540032; break;	// 3Para_Book1_SO, 3Para_Book2_SO
+		case EAJ_PRIEST:		setarray .@w, 590029, 550041; break;	// 3Para_Mace_AB, 3Para_Rod_AB
+		case EAJ_MONK:			setarray .@w, 560024, 560025; break;	// 3Para_Knuckle_SR, 3Para_Claw_SR
+		case EAJ_HUNTER:		setarray .@w, 700042, 700043; break;	// 3Para_Bow1_RA, 3Para_Bow2_RA
+		case EAJ_BARDDANCER:
+			if (.@male)
+				setarray .@w, 570022, 570023;	// 3Para_Violin_MI, 3Para_Harp_MI
+			else
+				setarray .@w, 580022, 580023;	// 3Para_Whip_WA, 3Para_Rope_WA
+			break;
+		case EAJ_KAGEROUOBORO:		setarray .@w, 650012, 650013; break;	// 3Para_Humma1_KO, 3Para_Humma2_KO
+		case EAJ_REBELLION:		setarray .@w, 830004, 800006; break;	// 3Para_Gatling_RL, 3Para_Revolver_RL
+		case EAJ_STAR_GLADIATOR:	setarray .@w, 540033, 540034; break;	// 3Para_Book1_SJ, 3Para_Book2_SJ
+		case EAJ_SOUL_LINKER:		setarray .@w, 640025, 640026; break;	// 3Para_Staff_SP, 3Para_Rod_SP
+		case EAJ_SUMMONER:
+		case EAJ_SPIRIT_HANDLER:	setarray .@w, 550042, 550043; break;	// 3Para_Foxtail1_SU, 3Para_Foxtail2_SU
+		case EAJ_SUPER_NOVICE:		setarray .@w, 510039, 550044; break;	// 3Para_Dagger_NV, 3Para_Wand_NV
+		}
+		break;
+	case 4:
+		switch (.@line) {
+		case EAJ_KNIGHT:		.@w = 24698; break;	// S_2Para_RK_Weapon
+		case EAJ_CRUSADER:		.@w = 24699; break;	// S_2Para_LG_Weapon
+		case EAJ_BLACKSMITH:		.@w = 24700; break;	// S_2Para_NC_Weapon
+		case EAJ_ALCHEMIST:		.@w = 24701; break;	// S_2Para_GN_Weapon
+		case EAJ_ASSASSIN:		.@w = 24702; break;	// S_2Para_GC_Weapon
+		case EAJ_ROGUE:			.@w = 24703; break;	// S_2Para_SC_Weapon
+		case EAJ_WIZARD:		.@w = 24704; break;	// S_2Para_WL_Weapon
+		case EAJ_SAGE:			.@w = 24705; break;	// S_2Para_SO_Weapon
+		case EAJ_PRIEST:		.@w = 24706; break;	// S_2Para_AB_Weapon
+		case EAJ_MONK:			.@w = 24707; break;	// S_2Para_SR_Weapon
+		case EAJ_HUNTER:		.@w = 24708; break;	// S_2Para_RA_Weapon
+		case EAJ_BARDDANCER:		.@w = 24709; break;	// S_2Para_WM_Weapon
+		case EAJ_KAGEROUOBORO:		.@w = 24710; break;	// S_2Para_KO_Weapon
+		case EAJ_REBELLION:		.@w = 24711; break;	// S_2Para_RL_Weapon
+		case EAJ_STAR_GLADIATOR:	.@w = 24712; break;	// S_2Para_SJ_Weapon
+		case EAJ_SOUL_LINKER:		.@w = 24713; break;	// S_2Para_SP_Weapon
+		case EAJ_SUMMONER:
+		case EAJ_SPIRIT_HANDLER:	.@w = 24714; break;	// S_2Para_SU_Weapon
+		case EAJ_SUPER_NOVICE:		.@w = 24715; break;	// S_2Para_NV_Weapon
+		}
+		return .@w;
+	}
+	return .@w[getarg(1)];
+}
+
+// Hands one character-bound copy of each item in the array to the attached
+// player, skipping items they already carry. Returns how many it gave,
+// or -1 if the inventory can't hold them.
+//   getarg(0): item id array
+function	script	F_EdenPara_GiveMissing	{
+	.@size = getarraysize(getarg(0));
+	for (.@i = 0; .@i < .@size; ++.@i) {
+		.@id = getelementofarray(getarg(0), .@i);
+		if (countitem(.@id) == 0) {
+			.@give[.@n] = .@id;
+			.@amount[.@n] = 1;
+			++.@n;
+		}
+	}
+	if (.@n == 0)
+		return 0;
+	if (!checkweight2(.@give, .@amount))
+		return -1;
+	for (.@i = 0; .@i < .@n; ++.@i)
+		getitembound .@give[.@i], 1, BOUND_CHAR;
+	return .@n;
+}
+
+moc_para01,110,79,3	script	Administrator BK#para	4_M_REPAIR,{
+	.@name$ = "[Administrator BK]";
+	mes .@name$;
+	mes "I look after the beginner gear.";
+	mes "Members from ^0000FFlevel 10^000000 can take";
+	mes "a weapon and a set of armor, free.";
+	next;
+	switch (select("Beginner weapon:Beginner armor (Physical set):Beginner armor (Magical set):Never mind")) {
+	case 1:
+		if (callfunc("F_EdenPara_Tier") < 1) {
+			mes .@name$;
+			mes "Come back once you reach level 10.";
+			close;
+		}
+		setarray .@weapons, 500032, 520010, 590025, 510035, 700036, 550032, 800004, 550033;
+		for (.@i = 0; .@i < getarraysize(.@weapons); ++.@i)
+			.@menu$ += getitemname(.@weapons[.@i]) + ":";
+		.@i = select(.@menu$ + "Never mind") - 1;
+		if (.@i == getarraysize(.@weapons))
+			close;
+		.@id = .@weapons[.@i];
+		mes .@name$;
+		if (countitem(.@id)) {
+			mes "You already have a " + getitemname(.@id) + ".";
+			close;
+		}
+		if (!checkweight(.@id, 1)) {
+			mes "Make some room in your inventory first.";
+			close;
+		}
+		getitembound .@id, 1, BOUND_CHAR;
+		mes "Here's your " + getitemname(.@id) + ".";
+		mes "If it doesn't suit your job, pick another one.";
+		close;
+	case 2:
+	case 3:
+		if (callfunc("F_EdenPara_Tier") < 1) {
+			mes .@name$;
+			mes "Come back once you reach level 10.";
+			close;
+		}
+		// You can switch sets by asking for the other one; the pieces you
+		// already hold are kept. [unverified: whether kRO takes the old set back]
+		if (@menu == 2)
+			setarray .@set, 400137, 450183, 480103, 470067, 490122, 490123;	// 1Para_*_A
+		else
+			setarray .@set, 400138, 450184, 480104, 470068, 490124, 490125;	// 1Para_*_B
+		.@given = callfunc("F_EdenPara_GiveMissing", .@set);
+		mes .@name$;
+		if (.@given < 0)
+			mes "Make some room in your inventory first.";
+		else if (.@given == 0)
+			mes "You already have every piece of that set.";
+		else
+			mes "Here you go. Look after it.";
+		close;
+	case 4:
+		close;
+	}
+}
+
+moc_para01,110,83,3	script	Administrator Michael#para	4_M_RUSMAN1,{
+	.@name$ = "[Administrator Michael]";
+	.@tier = callfunc("F_EdenPara_Tier");
+	mes .@name$;
+	mes "I handle the job weapons.";
+	mes "^0000FFIntermediate^000000 weapons are free from level 45";
+	mes "for 2nd and extended jobs.";
+	mes "^0000FFAdvanced^000000 weapons are for level 100";
+	mes "3rd and extended jobs.";
+	next;
+	switch (select("Intermediate weapon:Advanced weapon:Never mind")) {
+	case 1:
+		if (.@tier < 2 || callfunc("F_EdenPara_Weapon", 2, 0) == 0) {
+			mes .@name$;
+			mes "You need to be at least level 45";
+			mes "and have taken your 2nd job.";
+			close;
+		}
+		.@i = select(getitemname(callfunc("F_EdenPara_Weapon", 2, 0)) + ":" + getitemname(callfunc("F_EdenPara_Weapon", 2, 1)) + ":Never mind") - 1;
+		if (.@i == 2)
+			close;
+		.@id = callfunc("F_EdenPara_Weapon", 2, .@i);
+		mes .@name$;
+		if (!checkweight(.@id, 1)) {
+			mes "Make some room in your inventory first.";
+			close;
+		}
+		// Extra copies are free. [verified]
+		getitembound .@id, 1, BOUND_CHAR;
+		mes "Here's your " + getitemname(.@id) + ".";
+		close;
+	case 2:
+		if (.@tier < 3 || callfunc("F_EdenPara_Weapon", 3, 0) == 0) {
+			mes .@name$;
+			mes "You need to be at least level 100";
+			mes "and have taken your 3rd job.";
+			close;
+		}
+		.@i = select(getitemname(callfunc("F_EdenPara_Weapon", 3, 0)) + ":" + getitemname(callfunc("F_EdenPara_Weapon", 3, 1)) + ":Never mind") - 1;
+		if (.@i == 2)
+			close;
+		.@id = callfunc("F_EdenPara_Weapon", 3, .@i);
+		mes .@name$;
+		// The first advanced weapon costs 15 Old Pick (quest 17537); every
+		// one after that costs 10 Eden Coins. [verified]
+		if (!EDEN_PARA_ADV_WEAPON) {
+			mes "Your first advanced weapon is made";
+			mes "from ^0000FF15 Old Pick^000000.";
+			mes "Pitman's mine is where to find them.";
+			if (countitem(7318) < 15)	// Old_Pick
+				close;
+			next;
+			if (select("Hand over 15 Old Pick:Not now") == 2)
+				close;
+			mes .@name$;
+			if (!checkweight(.@id, 1)) {
+				mes "Make some room in your inventory first.";
+				close;
+			}
+			delitem 7318, 15;
+			EDEN_PARA_ADV_WEAPON = 1;
+		} else {
+			mes "Another advanced weapon costs";
+			mes "^0000FF10 Eden Group Coins^000000.";
+			if (countitem(25223) < 10)	// Para_Team_Coin
+				close;
+			next;
+			if (select("Pay 10 Eden Group Coins:Not now") == 2)
+				close;
+			mes .@name$;
+			if (!checkweight(.@id, 1)) {
+				mes "Make some room in your inventory first.";
+				close;
+			}
+			delitem 25223, 10;
+		}
+		getitembound .@id, 1, BOUND_CHAR;
+		mes "Here's your " + getitemname(.@id) + ".";
+		close;
+	case 3:
+		close;
+	}
+}
+
+moc_para01,110,87,3	script	Administrator Thorn#para	2_M_OLDBLSMITH,{
+	.@name$ = "[Administrator Thorn]";
+	mes .@name$;
+	mes "I make the ^0000FFadvanced armor^000000";
+	mes "for level 100 members with a 3rd";
+	mes "or extended job.";
+	next;
+	if (select("Advanced armor:Never mind") == 2)
+		close;
+	if (callfunc("F_EdenPara_Tier") < 3) {
+		mes .@name$;
+		mes "You need to be at least level 100";
+		mes "and have taken your 3rd job.";
+		close;
+	}
+	.@set = select("Physical set:Magical set:Never mind");
+	if (.@set == 3)
+		close;
+	if (.@set == 1)
+		setarray .@pieces, 400139, 450185, 480105, 470069, 490126, 490127;	// 2Para_*_A
+	else
+		setarray .@pieces, 400140, 450186, 480106, 470093, 490128, 490129;	// 2Para_*_B
+
+	// The first full set costs 15 Elastic Band and 3 Blue Hair (quest 17536);
+	// after that each piece costs 10 Eden Coins. [verified]
+	if (!EDEN_PARA_ADV_ARMOR) {
+		mes .@name$;
+		mes "Your first set is made from";
+		mes "^0000FF15 Elastic Band^000000 and ^0000FF3 Blue Hair^000000.";
+		mes "Wootan Shooters drop the bands,";
+		mes "and Kobolds the hair.";
+		if (countitem(7200) < 15 || countitem(1034) < 3)	// Flexible_String, Cobold_Hair
+			close;
+		next;
+		if (select("Hand them over:Not now") == 2)
+			close;
+		mes .@name$;
+		for (.@i = 0; .@i < getarraysize(.@pieces); ++.@i)
+			.@amount[.@i] = 1;
+		if (!checkweight2(.@pieces, .@amount)) {
+			mes "Make some room in your inventory first.";
+			close;
+		}
+		delitem 7200, 15;
+		delitem 1034, 3;
+		EDEN_PARA_ADV_ARMOR = 1;
+		for (.@i = 0; .@i < getarraysize(.@pieces); ++.@i)
+			getitembound .@pieces[.@i], 1, BOUND_CHAR;
+		mes "Here's the full set. Wear it well.";
+		close;
+	}
+
+	for (.@i = 0; .@i < getarraysize(.@pieces); ++.@i)
+		.@menu$ += getitemname(.@pieces[.@i]) + ":";
+	mes .@name$;
+	mes "Each extra piece costs";
+	mes "^0000FF10 Eden Group Coins^000000.";
+	next;
+	.@i = select(.@menu$ + "Never mind") - 1;
+	if (.@i == getarraysize(.@pieces))
+		close;
+	.@id = .@pieces[.@i];
+	mes .@name$;
+	if (countitem(25223) < 10) {
+		mes "You don't have 10 Eden Group Coins.";
+		close;
+	}
+	if (!checkweight(.@id, 1)) {
+		mes "Make some room in your inventory first.";
+		close;
+	}
+	delitem 25223, 10;
+	getitembound .@id, 1, BOUND_CHAR;
+	mes "Here's your " + getitemname(.@id) + ".";
+	close;
+}
+
+moc_para01,110,91,3	script	Administrator Emil#para	1_F_GYPSY,{
+	.@name$ = "[Administrator Emil]";
+	// Rental length; the extension can change it. 72 hours matches every
+	// source but one (Inven 254590 calls advanced shadow gear unlimited).
+	.@hours = getextensionvalue("eden_paradise_gear", "shadow_rental_hours", 72);
+	mes .@name$;
+	mes "I lend out ^0000FFshadow gear^000000 for " + .@hours + " hours.";
+	mes "The basic set is free from level 10.";
+	mes "The advanced set costs ^0000FF20 Eden Group Coins^000000";
+	mes "for level 100 members with a 3rd or extended job.";
+	next;
+	switch (select("Basic shadow gear:Advanced shadow gear:Never mind")) {
+	case 1:
+		// Level 10 is the NPC's gate; the items themselves are equip level 1.
+		// [unverified: kRO's gate for the basic set]
+		if (callfunc("F_EdenPara_Tier") < 1) {
+			mes .@name$;
+			mes "Come back once you reach level 10.";
+			close;
+		}
+		setarray .@pieces, 24687, 24688, 24689, 24690, 24691, 24692;	// S_1Para_*
+		for (.@i = 0; .@i < getarraysize(.@pieces); ++.@i) {
+			if (countitem(.@pieces[.@i]) == 0) {
+				.@give[.@n] = .@pieces[.@i];
+				.@amount[.@n] = 1;
+				++.@n;
+			}
+		}
+		mes .@name$;
+		if (.@n == 0) {
+			mes "You still have the whole set.";
+			mes "Come back when the rental runs out.";
+			close;
+		}
+		if (!checkweight2(.@give, .@amount)) {
+			mes "Make some room in your inventory first.";
+			close;
+		}
+		for (.@i = 0; .@i < .@n; ++.@i)
+			rentitem .@give[.@i], .@hours * 3600;
+		mes "Here you go. Bring them back in one piece.";
+		close;
+	case 2:
+		.@weapon = callfunc("F_EdenPara_Weapon", 4);
+		if (callfunc("F_EdenPara_Tier") < 3 || .@weapon == 0) {
+			mes .@name$;
+			mes "You need to be at least level 100";
+			mes "and have taken your 3rd job.";
+			close;
+		}
+		// 20 coins buys the 5 generic pieces plus the job's shadow weapon.
+		// [unverified: whether 20 coins is per set or per piece]
+		setarray .@pieces, 24693, 24694, 24695, 24696, 24697, .@weapon;	// S_2Para_*
+		mes .@name$;
+		for (.@i = 0; .@i < getarraysize(.@pieces); ++.@i) {
+			if (countitem(.@pieces[.@i])) {
+				mes "You're still renting advanced shadow gear.";
+				mes "Come back when the rental runs out.";
+				close;
+			}
+			.@amount[.@i] = 1;
+		}
+		if (countitem(25223) < 20) {	// Para_Team_Coin
+			mes "You don't have 20 Eden Group Coins.";
+			close;
+		}
+		if (!checkweight2(.@pieces, .@amount)) {
+			mes "Make some room in your inventory first.";
+			close;
+		}
+		if (select("Pay 20 Eden Group Coins:Not now") == 2)
+			close;
+		delitem 25223, 20;
+		for (.@i = 0; .@i < getarraysize(.@pieces); ++.@i)
+			rentitem .@pieces[.@i], .@hours * 3600;
+		mes "Here you go. Bring them back in one piece.";
+		close;
+	case 3:
+		close;
+	}
+}
+
+// Shows the Administrators only while the extension is on, and hides the
+// old Eden Team gear NPCs they replace.
+-	script	#eden_paradise_gear	-1,{
+	end;
+OnInit:
+	setarray .@new$, "Administrator BK#para", "Administrator Michael#para", "Administrator Thorn#para", "Administrator Emil#para";
+	setarray .@old$, "Weapons Expert BK#2nd11", "Administrator Michael", "Blacksmith Thorn#2nd10";
+
+	if (!getextension("eden_paradise_gear")) {
+		for (.@i = 0; .@i < getarraysize(.@new$); ++.@i)
+			disablenpc .@new$[.@i];
+		end;
+	}
+	if (getextensionvalue("eden_paradise_gear", "retire_old_npcs", 1)) {
+		for (.@i = 0; .@i < getarraysize(.@old$); ++.@i)
+			disablenpc .@old$[.@i];
+	}
+	end;
+}
