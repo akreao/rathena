@@ -104354,10 +104354,64 @@ Body:
     AttackMotion: 481
     DamageMotion: 120
     Ai: 24
-#  - Id: 20534
-#    AegisName: G_REGINLEIF
-#  - Id: 20535
-#    AegisName: G_INGRID
+# Slaves of the Odin's Past Valkyries, from Divine Pride's kRO data (no EXP or
+# drops). Attack and Attack2 are derived as for their masters. [unverified]
+  - Id: 20534
+    AegisName: G_REGINLEIF
+    Name: Valkyrie
+    Level: 207
+    Hp: 13269890
+    Attack: 7712
+    Attack2: 2028
+    Defense: 506
+    MagicDefense: 94
+    Str: 281
+    Agi: 183
+    Vit: 147
+    Int: 298
+    Dex: 201
+    Luk: 101
+    AttackRange: 3
+    SkillRange: 10
+    ChaseRange: 12
+    Size: Medium
+    Race: Angel
+    Element: Fire
+    ElementLevel: 4
+    WalkSpeed: 120
+    AttackDelay: 575
+    AttackMotion: 576
+    DamageMotion: 432
+    Ai: 21
+    Class: Boss
+  - Id: 20535
+    AegisName: G_INGRID
+    Name: Valkyrie
+    Level: 207
+    Hp: 13262990
+    Attack: 7685
+    Attack2: 3768
+    Defense: 374
+    MagicDefense: 92
+    Str: 297
+    Agi: 185
+    Vit: 135
+    Int: 273
+    Dex: 205
+    Luk: 99
+    AttackRange: 2
+    SkillRange: 10
+    ChaseRange: 12
+    Size: Medium
+    Race: Angel
+    Element: Water
+    ElementLevel: 4
+    WalkSpeed: 130
+    AttackDelay: 575
+    AttackMotion: 576
+    DamageMotion: 432
+    Ai: 21
+    Class: Boss
 #  - Id: 20536
 #    AegisName: MD_ED_B_YGNIZEM
 #  - Id: 20537
