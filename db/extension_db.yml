@@ -144,12 +144,18 @@ Body:
       old ones stay.
     Enabled: false
     Values:
+      - Key: shadow_permanent
+        Type: Int
+        Default: 0
+        Min: 0
+        Max: 1
+        Description: 0 rents out Administrator Emil's shadow gear, as kRO does; 1 hands out every piece, basic and advanced, permanently.
       - Key: shadow_rental_hours
         Type: Int
         Default: 72
         Min: 1
         Max: 8760
-        Description: How long Administrator Emil's shadow gear rentals last, in hours.
+        Description: How long Administrator Emil's shadow gear rentals last, in hours. Ignored while shadow_permanent is 1.
 
 Footer:
   Imports:

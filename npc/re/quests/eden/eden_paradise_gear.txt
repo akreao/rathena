@@ -566,8 +566,11 @@ moc_para01,110,87,3	script	Administrator Thorn#para	2_M_OLDBLSMITH,{
 
 moc_para01,110,91,3	script	Administrator Emil#para	1_F_GYPSY,{
 	.@name$ = "[Administrator Emil]";
-	// Rental length; the extension can change it. 72 hours matches every
-	// source but one (Inven 254590 calls advanced shadow gear unlimited).
+	// Rentals by default, like kRO. 72 hours matches every source but one
+	// (Inven 254590 calls advanced shadow gear unlimited). The extension's
+	// shadow_permanent value hands out every piece permanently instead,
+	// and shadow_rental_hours sets the rental length.
+	.@permanent = getextensionvalue("eden_rework_2021", "shadow_permanent", 0);
 	.@hours = getextensionvalue("eden_rework_2021", "shadow_rental_hours", 72);
 	if (isbegin_quest(17533) == 1) {
 		changequest 17533, 17534;
@@ -578,7 +581,10 @@ moc_para01,110,91,3	script	Administrator Emil#para	1_F_GYPSY,{
 		next;
 	}
 	mes .@name$;
-	mes "I lend out ^0000FFshadow gear^000000 for " + .@hours + " hours.";
+	if (.@permanent)
+		mes "I hand out ^0000FFshadow gear^000000 to keep.";
+	else
+		mes "I lend out ^0000FFshadow gear^000000 for " + .@hours + " hours.";
 	mes "The basic set is free from level 10.";
 	mes "The advanced set costs ^0000FF20 Eden Group Coins^000000";
 	mes "for level 100 members with a 3rd or extended job.";
@@ -603,16 +609,21 @@ moc_para01,110,91,3	script	Administrator Emil#para	1_F_GYPSY,{
 		mes .@name$;
 		if (.@n == 0) {
 			mes "You still have the whole set.";
-			mes "Come back when the rental runs out.";
+			if (!.@permanent)
+				mes "Come back when the rental runs out.";
 			close;
 		}
 		if (!checkweight2(.@give, .@amount)) {
 			mes "Make some room in your inventory first.";
 			close;
 		}
-		for (.@i = 0; .@i < .@n; ++.@i)
-			rentitem .@give[.@i], .@hours * 3600;
-		mes "Here you go. Bring them back in one piece.";
+		for (.@i = 0; .@i < .@n; ++.@i) {
+			if (.@permanent)
+				getitembound .@give[.@i], 1, BOUND_CHAR;
+			else
+				rentitem .@give[.@i], .@hours * 3600;
+		}
+		mes "Here you go. Look after them.";
 		close;
 	case 2:
 		.@weapon = callfunc("F_EdenPara_Weapon", 4);
@@ -628,8 +639,12 @@ moc_para01,110,91,3	script	Administrator Emil#para	1_F_GYPSY,{
 		mes .@name$;
 		for (.@i = 0; .@i < getarraysize(.@pieces); ++.@i) {
 			if (countitem(.@pieces[.@i])) {
-				mes "You're still renting advanced shadow gear.";
-				mes "Come back when the rental runs out.";
+				if (.@permanent) {
+					mes "You already have advanced shadow gear.";
+				} else {
+					mes "You're still renting advanced shadow gear.";
+					mes "Come back when the rental runs out.";
+				}
 				close;
 			}
 			.@amount[.@i] = 1;
@@ -645,9 +660,13 @@ moc_para01,110,91,3	script	Administrator Emil#para	1_F_GYPSY,{
 		if (select("Pay 20 Eden Group Coins:Not now") == 2)
 			close;
 		delitem 25223, 20;
-		for (.@i = 0; .@i < getarraysize(.@pieces); ++.@i)
-			rentitem .@pieces[.@i], .@hours * 3600;
-		mes "Here you go. Bring them back in one piece.";
+		for (.@i = 0; .@i < getarraysize(.@pieces); ++.@i) {
+			if (.@permanent)
+				getitembound .@pieces[.@i], 1, BOUND_CHAR;
+			else
+				rentitem .@pieces[.@i], .@hours * 3600;
+		}
+		mes "Here you go. Look after them.";
 		close;
 	case 3:
 		close;
