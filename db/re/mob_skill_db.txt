@@ -13577,7 +13577,8 @@
 20419,MUSPELLSKOLL_H@AL_TELEPORT,walk,26,1,10000,0,0,yes,self,rudeattacked,0,,,,,,,
 
 // Odin's Past Valkyries and their slaves, from Divine Pride's kRO table. Each
-// Valkyrie calls 3 slaves, as seen in game; Divine Pride lists level 1. [unverified]
+// Valkyrie calls 3 slaves, as in https://www.youtube.com/watch?v=9A5YYJn8pHw;
+// Divine Pride lists level 1. [unverified]
 20610,REGINLEIF@AL_TELEPORT,idle,26,1,10000,0,5000,yes,self,rudeattacked,0,,,,,,,
 20610,REGINLEIF@NPC_SUMMONSLAVE,attack,196,3,10000,2000,5000,no,self,slavele,0,20534,,,,,,
 20610,REGINLEIF@NPC_SUMMONSLAVE,idle,196,3,10000,2000,5000,no,self,slavele,0,20534,,,,,,
