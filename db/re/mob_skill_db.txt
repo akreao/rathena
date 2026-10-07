@@ -13577,7 +13577,7 @@
 20419,MUSPELLSKOLL_H@AL_TELEPORT,walk,26,1,10000,0,0,yes,self,rudeattacked,0,,,,,,,
 
 // Odin's Past monsters, from Divine Pride's kRO table. Emotion rows are left
-// out; the Comradehp and Magiclocked conditions are approximated. [unverified]
+// out, and the Comradehp threshold (60%) is a guess. [unverified]
 20604,ANGELGOLT@NPC_DEFENDER,attack,205,1,1500,0,30000,yes,self,longrangeattacked,,,,,,,,
 20604,ANGELGOLT@NPC_HOLYATTACK,attack,189,2,4000,0,2000,yes,target,always,0,,,,,,,
 20604,ANGELGOLT@AL_TELEPORT,idle,26,5,7000,0,10000,yes,self,rudeattacked,0,,,,,,,
@@ -13599,7 +13599,7 @@
 20607,HOLY_SKOGUL@NPC_CHEAL,chase,729,5,3000,500,3000,no,friend,friendhpltmaxrate,60,,,,,,,
 20607,HOLY_SKOGUL@CR_HOLYCROSS,attack,253,5,5000,0,10000,yes,target,always,0,,,,,,,
 20607,HOLY_SKOGUL@CR_GRANDCROSS,attack,254,5,500,1000,5000,no,self,always,0,,,,,,,
-20607,HOLY_SKOGUL@NPC_MAGICALATTACK,attack,192,3,5000,800,20000,no,target,always,0,,,,,,,
+20607,HOLY_SKOGUL@NPC_MAGICALATTACK,attack,192,3,5000,800,20000,no,target,casttargeted,0,,,,,,,
 20608,PLASMA_ARCH@NPC_WIDESIGHT,idle,669,1,10000,0,30000,yes,self,always,0,,,,,,,
 20608,PLASMA_ARCH@AL_TELEPORT,idle,26,5,7000,0,10000,yes,self,rudeattacked,0,,,,,,,
 20608,PLASMA_ARCH@NPC_TELEKINESISATTACK,chase,191,5,500,0,5000,yes,target,always,0,,,,,,,
