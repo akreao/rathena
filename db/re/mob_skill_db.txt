@@ -13576,13 +13576,11 @@
 20419,MUSPELLSKOLL_H@NPC_SUMMONSLAVE,idle,196,1,10000,700,10000,no,self,slavele,2,1834,1835,,,,,
 20419,MUSPELLSKOLL_H@AL_TELEPORT,walk,26,1,10000,0,0,yes,self,rudeattacked,0,,,,,,,
 
-// Odin's Past Valkyries and their slaves, from Divine Pride's kRO table. Each
-// Valkyrie calls 3 slaves, as in https://www.youtube.com/watch?v=9A5YYJn8pHw;
-// Divine Pride lists level 1. [unverified]
+// Odin's Past Valkyries and their slaves, from Divine Pride's kRO table. [unverified]
 20610,REGINLEIF@AL_TELEPORT,idle,26,1,10000,0,5000,yes,self,rudeattacked,0,,,,,,,
-20610,REGINLEIF@NPC_SUMMONSLAVE,attack,196,3,10000,2000,5000,no,self,slavele,0,20534,,,,,,
-20610,REGINLEIF@NPC_SUMMONSLAVE,idle,196,3,10000,2000,5000,no,self,slavele,0,20534,,,,,,
-20610,REGINLEIF@NPC_SUMMONSLAVE,chase,196,3,10000,2000,5000,no,self,slavele,0,20534,,,,,,
+20610,REGINLEIF@NPC_SUMMONSLAVE,attack,196,1,10000,2000,5000,no,self,slavele,0,20534,,,,,,
+20610,REGINLEIF@NPC_SUMMONSLAVE,idle,196,1,10000,2000,5000,no,self,slavele,0,20534,,,,,,
+20610,REGINLEIF@NPC_SUMMONSLAVE,chase,196,1,10000,2000,5000,no,self,slavele,0,20534,,,,,,
 20610,REGINLEIF@NPC_CALLSLAVE,attack,352,1,10000,0,30000,yes,self,always,0,,,,,,,
 20610,REGINLEIF@NPC_CALLSLAVE,idle,352,1,10000,0,30000,yes,self,always,0,,,,,,,
 20610,REGINLEIF@NPC_CALLSLAVE,chase,352,1,10000,0,30000,yes,self,always,0,,,,,,,
@@ -13602,9 +13600,9 @@
 20610,REGINLEIF@HW_GANBANTEIN,attack,483,1,2000,0,30000,yes,target,always,0,,,,,,,
 20610,REGINLEIF@NPC_EARTHQUAKE,attack,653,5,10000,1000,25000,no,self,myhpltmaxrate,30,,,,,,,
 20611,INGRID@AL_TELEPORT,idle,26,1,10000,0,5000,yes,self,rudeattacked,0,,,,,,,
-20611,INGRID@NPC_SUMMONSLAVE,attack,196,3,10000,2000,5000,no,self,slavele,0,20535,,,,,,
-20611,INGRID@NPC_SUMMONSLAVE,idle,196,3,10000,2000,5000,no,self,slavele,0,20535,,,,,,
-20611,INGRID@NPC_SUMMONSLAVE,chase,196,3,10000,2000,5000,no,self,slavele,0,20535,,,,,,
+20611,INGRID@NPC_SUMMONSLAVE,attack,196,1,10000,2000,5000,no,self,slavele,0,20535,,,,,,
+20611,INGRID@NPC_SUMMONSLAVE,idle,196,1,10000,2000,5000,no,self,slavele,0,20535,,,,,,
+20611,INGRID@NPC_SUMMONSLAVE,chase,196,1,10000,2000,5000,no,self,slavele,0,20535,,,,,,
 20611,INGRID@NPC_CALLSLAVE,attack,352,1,10000,0,30000,yes,self,always,0,,,,,,,
 20611,INGRID@NPC_CALLSLAVE,idle,352,1,10000,0,30000,yes,self,always,0,,,,,,,
 20611,INGRID@NPC_CALLSLAVE,chase,352,1,10000,0,30000,yes,self,always,0,,,,,,,
