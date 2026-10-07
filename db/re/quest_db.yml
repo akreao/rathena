@@ -13980,6 +13980,326 @@ Body:
   - Id: 21441
     Title: "Eden Group Delivery: Fluff (Standby)"
     TimeLimit: +1h
+  - Id: 21501
+    Title: Elusive Hornet Hunt
+    Targets:
+      - Mob: C5_HORNET
+        Count: 1
+  - Id: 21502
+    Title: Elusive Hornet Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21503
+    Title: Elusive Rocker Hunt
+    Targets:
+      - Mob: C5_ROCKER
+        Count: 1
+  - Id: 21504
+    Title: Elusive Rocker Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21505
+    Title: Elusive Ambernite Hunt
+    Targets:
+      - Mob: C5_AMBERNITE
+        Count: 1
+  - Id: 21506
+    Title: Elusive Ambernite Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21507
+    Title: Muka Ringleader Hunt
+    Targets:
+      - Mob: C3_MUKA
+        Count: 1
+  - Id: 21508
+    Title: Muka Ringleader Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21509
+    Title: Bigfoot Ringleader Hunt
+    Targets:
+      - Mob: C3_BIGFOOT
+        Count: 1
+  - Id: 21510
+    Title: Bigfoot Ringleader Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21511
+    Title: Solid Horn Hunt
+    Targets:
+      - Mob: C2_HORN
+        Count: 1
+  - Id: 21512
+    Title: Solid Horn Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21513
+    Title: Swift Elder Willow Hunt
+    Targets:
+      - Mob: C1_ELDER_WILOW
+        Count: 1
+  - Id: 21514
+    Title: Swift Elder Willow Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21515
+    Title: Solid Coco Hunt
+    Targets:
+      - Mob: C2_COCO
+        Count: 1
+  - Id: 21516
+    Title: Solid Coco Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21517
+    Title: Swift Yoyo Hunt
+    Targets:
+      - Mob: C1_YOYO
+        Count: 1
+  - Id: 21518
+    Title: Swift Yoyo Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21519
+    Title: Elusive Magnolia Hunt
+    Targets:
+      - Mob: C5_MAGNOLIA
+        Count: 1
+  - Id: 21520
+    Title: Elusive Magnolia Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21521
+    Title: Furious Orc Warrior Hunt
+    Targets:
+      - Mob: C4_ORK_WARRIOR
+        Count: 1
+  - Id: 21522
+    Title: Furious Orc Warrior Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21523
+    Title: Swift Goblin Hunt
+    Targets:
+      - Mob: C1_GOBLIN_1
+        Count: 1
+  - Id: 21524
+    Title: Swift Goblin Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21525
+    Title: Elusive Goblin Hunt
+    Targets:
+      - Mob: C5_GOBLIN_1
+        Count: 1
+  - Id: 21526
+    Title: Elusive Goblin Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21527
+    Title: Swift Petite Hunt
+    Targets:
+      - Mob: C1_PETIT
+        Count: 1
+  - Id: 21528
+    Title: Swift Petite Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21529
+    Title: Solid Petite Hunt
+    Targets:
+      - Mob: C2_PETIT
+        Count: 1
+  - Id: 21530
+    Title: Solid Petite Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21531
+    Title: Furious Sandman Hunt
+    Targets:
+      - Mob: C4_SAND_MAN
+        Count: 1
+  - Id: 21532
+    Title: Furious Sandman Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21533
+    Title: Swift Seal Hunt
+    Targets:
+      - Mob: C1_FUR_SEAL
+        Count: 1
+  - Id: 21534
+    Title: Swift Seal Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21535
+    Title: Elusive Grove Hunt
+    Targets:
+      - Mob: C5_GREEN_IGUANA
+        Count: 1
+  - Id: 21536
+    Title: Elusive Grove Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21537
+    Title: Solid Alligator Hunt
+    Targets:
+      - Mob: C2_ALLIGATOR
+        Count: 1
+  - Id: 21538
+    Title: Solid Alligator Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21539
+    Title: Furious Wootan Fighter Hunt
+    Targets:
+      - Mob: C4_WOOTAN_FIGHTER
+        Count: 1
+  - Id: 21540
+    Title: Furious Wootan Fighter Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21541
+    Title: Swift Dryad Hunt
+    Targets:
+      - Mob: C1_DRYAD
+        Count: 1
+  - Id: 21542
+    Title: Swift Dryad Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21543
+    Title: Swift Shellfish Hunt
+    Targets:
+      - Mob: C1_SHELLFISH
+        Count: 1
+  - Id: 21544
+    Title: Swift Shellfish Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21545
+    Title: Solid Geographer Hunt
+    Targets:
+      - Mob: C2_GEOGRAPHER
+        Count: 1
+  - Id: 21546
+    Title: Solid Geographer Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21547
+    Title: Grand Peco Ringleader Hunt
+    Targets:
+      - Mob: C3_GRAND_PECO
+        Count: 1
+  - Id: 21548
+    Title: Grand Peco Ringleader Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21549
+    Title: Goat Ringleader Hunt
+    Targets:
+      - Mob: C3_GOAT
+        Count: 1
+  - Id: 21550
+    Title: Goat Ringleader Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21551
+    Title: Swift Sleeper Hunt
+    Targets:
+      - Mob: C1_SLEEPER
+        Count: 1
+  - Id: 21552
+    Title: Swift Sleeper Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21553
+    Title: Swift Stem Worm Hunt
+    Targets:
+      - Mob: C1_STEM_WORM
+        Count: 1
+  - Id: 21554
+    Title: Swift Stem Worm Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21555
+    Title: Solid Holden Hunt
+    Targets:
+      - Mob: C2_MOLE
+        Count: 1
+  - Id: 21556
+    Title: Solid Holden Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21557
+    Title: Swift Rafflesia Hunt
+    Targets:
+      - Mob: C1_RAFFLESIA
+        Count: 1
+  - Id: 21558
+    Title: Swift Rafflesia Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21559
+    Title: Venomous Ringleader Hunt
+    Targets:
+      - Mob: C3_VENOMOUS
+        Count: 1
+  - Id: 21560
+    Title: Venomous Ringleader Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21561
+    Title: Furious Noxious Hunt
+    Targets:
+      - Mob: C4_NOXIOUS
+        Count: 1
+  - Id: 21562
+    Title: Furious Noxious Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21563
+    Title: Elusive Novus Hunt
+    Targets:
+      - Mob: C5_NOVUS
+        Count: 1
+  - Id: 21564
+    Title: Elusive Novus Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21565
+    Title: Solid Roween Hunt
+    Targets:
+      - Mob: C2_ROWEEN
+        Count: 1
+  - Id: 21566
+    Title: Solid Roween Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21567
+    Title: Stapo Ringleader Hunt
+    Targets:
+      - Mob: C3_STAPO
+        Count: 1
+  - Id: 21568
+    Title: Stapo Ringleader Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21569
+    Title: Furious Smokie Hunt
+    Targets:
+      - Mob: C4_SMOKIE
+        Count: 1
+  - Id: 21570
+    Title: Furious Smokie Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21571
+    Title: Dumpling Child Ringleader Hunt
+    Targets:
+      - Mob: C3_RICE_CAKE_BOY
+        Count: 1
+  - Id: 21572
+    Title: Dumpling Child Ringleader Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21573
+    Title: Furious Toucan Hunt
+    Targets:
+      - Mob: C4_TOUCAN
+        Count: 1
+  - Id: 21574
+    Title: Furious Toucan Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21575
+    Title: Solid Side Winder Hunt
+    Targets:
+      - Mob: C2_SIDE_WINDER
+        Count: 1
+  - Id: 21576
+    Title: Solid Side Winder Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21577
+    Title: Swift Karakasa Hunt
+    Targets:
+      - Mob: C1_KARAKASA
+        Count: 1
+  - Id: 21578
+    Title: Swift Karakasa Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21579
+    Title: Elusive Mi Gao Hunt
+    Targets:
+      - Mob: C5_INCREASE_SOIL
+        Count: 1
+  - Id: 21580
+    Title: Elusive Mi Gao Hunt (Standby)
+    TimeLimit: 4h
   - Id: 21582
     Title: Take Out the Radio Operators First
     Targets:
@@ -14488,6 +14808,278 @@ Body:
         Count: 30
   - Id: 21784
     Title: Purity Made Flesh (Standby)
+    TimeLimit: 4h
+  - Id: 21786
+    Title: Elusive Carat Hunt
+    Targets:
+      - Mob: C5_CARAT
+        Count: 1
+  - Id: 21787
+    Title: Elusive Carat Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21788
+    Title: Furious Majoruros Hunt
+    Targets:
+      - Mob: C4_MAJORUROS
+        Count: 1
+  - Id: 21789
+    Title: Furious Majoruros Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21790
+    Title: Solid Raydric Hunt
+    Targets:
+      - Mob: C2_RAYDRIC
+        Count: 1
+  - Id: 21791
+    Title: Solid Raydric Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21792
+    Title: Swift Raydric Hunt
+    Targets:
+      - Mob: C1_RAYDRIC
+        Count: 1
+  - Id: 21793
+    Title: Swift Raydric Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21794
+    Title: Furious Wanderer Hunt
+    Targets:
+      - Mob: C4_WANDER_MAN
+        Count: 1
+  - Id: 21795
+    Title: Furious Wanderer Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21796
+    Title: Swift Zombie Slaughter Hunt
+    Targets:
+      - Mob: C1_ZOMBIE_SLAUGHTER
+        Count: 1
+  - Id: 21797
+    Title: Swift Zombie Slaughter Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21798
+    Title: Swift Banshee Hunt
+    Targets:
+      - Mob: C1_BANSHEE
+        Count: 1
+  - Id: 21799
+    Title: Swift Banshee Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21800
+    Title: Necromancer Ringleader Hunt
+    Targets:
+      - Mob: C3_NECROMANCER
+        Count: 1
+  - Id: 21801
+    Title: Necromancer Ringleader Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21802
+    Title: Furious Nightmare Terror Hunt
+    Targets:
+      - Mob: C4_NIGHTMARE_TERROR
+        Count: 1
+  - Id: 21803
+    Title: Furious Nightmare Terror Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21804
+    Title: Ancient Mimic Ringleader Hunt
+    Targets:
+      - Mob: C3_ANCIENT_MIMIC
+        Count: 1
+  - Id: 21805
+    Title: Ancient Mimic Ringleader Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21806
+    Title: Solid Death Word Hunt
+    Targets:
+      - Mob: C2_DEATHWORD
+        Count: 1
+  - Id: 21807
+    Title: Solid Death Word Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21808
+    Title: Furious Venatu Hunt
+    Targets:
+      - Mob: C4_VENATU_1
+        Count: 1
+  - Id: 21809
+    Title: Furious Venatu Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21810
+    Title: Swift Dimik Hunt
+    Targets:
+      - Mob: C1_DIMIK_1
+        Count: 1
+  - Id: 21811
+    Title: Swift Dimik Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21812
+    Title: Furious Ferus Hunt
+    Targets:
+      - Mob: C4_FERUS_
+        Count: 1
+  - Id: 21813
+    Title: Furious Ferus Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21814
+    Title: Solid Acidus Hunt
+    Targets:
+      - Mob: C2_ACIDUS_
+        Count: 1
+  - Id: 21815
+    Title: Solid Acidus Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21816
+    Title: Elusive Lady Solace Hunt
+    Targets:
+      - Mob: C5_SOLACE
+        Count: 1
+  - Id: 21817
+    Title: Elusive Lady Solace Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21818
+    Title: Dame of Sentinel Ringleader Hunt
+    Targets:
+      - Mob: C3_OBSERVATION
+        Count: 1
+  - Id: 21819
+    Title: Dame of Sentinel Ringleader Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21820
+    Title: Laurell Weinder Ringleader Hunt
+    Targets:
+      - Mob: C3_RAWREL
+        Count: 1
+  - Id: 21821
+    Title: Laurell Weinder Ringleader Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21822
+    Title: Solid Cecil Damon Hunt
+    Targets:
+      - Mob: C2_SHECIL
+        Count: 1
+  - Id: 21823
+    Title: Solid Cecil Damon Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21824
+    Title: Swift Hill Wind Hunt
+    Targets:
+      - Mob: C1_HILL_WIND_1
+        Count: 1
+  - Id: 21825
+    Title: Swift Hill Wind Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21826
+    Title: Solid Kobold Hunt
+    Targets:
+      - Mob: C2_KOBOLD_1
+        Count: 1
+  - Id: 21827
+    Title: Solid Kobold Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21828
+    Title: Swift Kobold Archer Hunt
+    Targets:
+      - Mob: C1_KOBOLD_ARCHER
+        Count: 1
+  - Id: 21829
+    Title: Swift Kobold Archer Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21830
+    Title: Solid Snowier Hunt
+    Targets:
+      - Mob: C2_SNOWIER
+        Count: 1
+  - Id: 21831
+    Title: Solid Snowier Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21832
+    Title: Swift Ice Titan Hunt
+    Targets:
+      - Mob: C1_ICE_TITAN
+        Count: 1
+  - Id: 21833
+    Title: Swift Ice Titan Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21834
+    Title: Isilla Ringleader Hunt
+    Targets:
+      - Mob: C3_ISILLA
+        Count: 1
+  - Id: 21835
+    Title: Isilla Ringleader Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21836
+    Title: Echio Ringleader Hunt
+    Targets:
+      - Mob: C3_ECHIO
+        Count: 1
+  - Id: 21837
+    Title: Echio Ringleader Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21838
+    Title: Swift Agav Hunt
+    Targets:
+      - Mob: C1_AGAV
+        Count: 1
+  - Id: 21839
+    Title: Swift Agav Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21840
+    Title: Elusive Luciola Vespa Hunt
+    Targets:
+      - Mob: C5_LUCIOLA_VESPA
+        Count: 1
+  - Id: 21841
+    Title: Elusive Luciola Vespa Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21842
+    Title: Solid Dark Pinguicula Hunt
+    Targets:
+      - Mob: C2_PINGUICULA_D
+        Count: 1
+  - Id: 21843
+    Title: Solid Dark Pinguicula Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21844
+    Title: Swift Centipede Hunt
+    Targets:
+      - Mob: C1_CENTIPEDE
+        Count: 1
+  - Id: 21845
+    Title: Swift Centipede Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21846
+    Title: Dolomedes Ringleader Hunt
+    Targets:
+      - Mob: C3_DOLOMEDES
+        Count: 1
+  - Id: 21847
+    Title: Dolomedes Ringleader Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21848
+    Title: Elusive Antler Scaraba Hunt
+    Targets:
+      - Mob: C5_ANTLER_SCARABA
+        Count: 1
+  - Id: 21849
+    Title: Elusive Antler Scaraba Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21850
+    Title: Miming Ringleader Hunt
+    Targets:
+      - Mob: C3_MIMING
+        Count: 1
+  - Id: 21851
+    Title: Miming Ringleader Hunt (Standby)
+    TimeLimit: 4h
+  - Id: 21852
+    Title: Furious Little Fatum Hunt
+    Targets:
+      - Mob: C4_LITTLE_FATUM
+        Count: 1
+  - Id: 21853
+    Title: Furious Little Fatum Hunt (Standby)
     TimeLimit: 4h
   - Id: 50000
     Title: Pirate Dagger materials

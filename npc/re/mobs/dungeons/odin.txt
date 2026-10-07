@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= Poki#3 (0.1)
 //===== Current Version: =====================================
-//= 1.3
+//= 1.4
 //===== Compatible With: =====================================
 //= rAthena Project
 //===== Additional Comments: =================================
@@ -11,6 +11,7 @@
 //= 1.1 More accurate spawns [Playtester]
 //= 1.2 Corrected MVP spawn variance. [L0ne_W0lf]
 //= 1.3 Correct Spawn by Navigation's mob data. [attackjom]
+//= 1.4 Added Ancient Odin Temple (odin_past).
 //============================================================
 
 //==================================================
@@ -54,3 +55,17 @@ odin_tem03,0,0	monster	Valkyrie	1765,2,5400000,1800000
 odin_tem03,0,0,0,0	boss_monster	Valkyrie Randgris	1751,1,28800000,600000,1
 odin_tem03,0,0	monster	Blue Plant	1079,18,1800000,900000
 odin_tem03,0,0	monster	Shining Plant	1083,18,1800000,900000
+
+//==================================================
+// odin_past - Ancient Odin Temple
+// Counts and respawns from Divine Pride's kRO data; the two Valkyrie
+// MVPs (Reginleif, Ingrid) are not in the mob database yet. [unverified]
+//==================================================
+odin_past,0,0	monster	Angelgolt	20604,40,5000
+odin_past,0,0	monster	Angelgolt	20605,60,5000
+odin_past,0,0	monster	Holy Frus	20606,45,5000
+odin_past,0,0	monster	Holy Skogul	20607,45,5000
+odin_past,0,0	monster	Arch Plasma	20608,5,60000
+odin_past,0,0	monster	Spectral Plasma	20609,5,60000
+odin_past,0,0	monster	Blue Plant	1079,5,1800000,900000
+odin_past,0,0	monster	Shining Plant	1083,2,1800000,900000

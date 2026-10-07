@@ -105119,18 +105119,291 @@ Body:
       - Item: Abyss_Man_Card
         Rate: 1
         StealProtected: true
-#  - Id: 20604
-#    AegisName: ANGELGOLT
-#  - Id: 20605
-#    AegisName: ANGELGOLT2
-#  - Id: 20606
-#    AegisName: HOLY_FRUS
-#  - Id: 20607
-#    AegisName: HOLY_SKOGUL
-#  - Id: 20608
-#    AegisName: PLASMA_ARCH
-#  - Id: 20609
-#    AegisName: PLASMA_SPT
+# Odin's Past (odin_past) monsters, from Divine Pride's kRO data. Attack and
+# Attack2 are derived from its displayed ranges, and the motions are copied
+# from Angeling, Frus, Skogul and Plasma; skills are not added. [unverified]
+  - Id: 20604
+    AegisName: ANGELGOLT
+    Name: Angelgolt
+    Level: 196
+    Hp: 2634990
+    BaseExp: 179251
+    JobExp: 125476
+    Attack: 4140
+    Attack2: 835
+    Defense: 252
+    MagicDefense: 71
+    Str: 166
+    Agi: 153
+    Vit: 77
+    Int: 68
+    Dex: 162
+    Luk: 65
+    AttackRange: 2
+    SkillRange: 10
+    ChaseRange: 12
+    Size: Small
+    Race: Angel
+    Element: Holy
+    ElementLevel: 4
+    WalkSpeed: 250
+    AttackDelay: 781
+    AttackMotion: 672
+    DamageMotion: 672
+    Ai: 04
+    Drops:
+      - Item: Angelic_Chain
+        Rate: 2
+      - Item: Soft_Feather
+        Rate: 300
+      - Item: Angel_Dream
+        Rate: 150
+      - Item: Stone_Of_Intelligence_
+        Rate: 15
+      - Item: Odin_itembox
+        Rate: 5
+      - Item: Shadowdecon_Ore
+        Rate: 150
+      - Item: Rune_Of_Darkness
+        Rate: 200
+      - Item: Angelgolt_Card
+        Rate: 1
+        StealProtected: true
+  - Id: 20605
+    AegisName: ANGELGOLT2
+    Name: Angelgolt
+    Level: 196
+    Hp: 2634476
+    BaseExp: 179216
+    JobExp: 125451
+    Attack: 3878
+    Attack2: 783
+    Defense: 246
+    MagicDefense: 71
+    Str: 155
+    Agi: 158
+    Vit: 74
+    Int: 63
+    Dex: 166
+    Luk: 41
+    AttackRange: 2
+    SkillRange: 10
+    ChaseRange: 12
+    Size: Small
+    Race: Angel
+    Element: Holy
+    ElementLevel: 4
+    WalkSpeed: 250
+    AttackDelay: 781
+    AttackMotion: 672
+    DamageMotion: 672
+    Ai: 04
+    Drops:
+      - Item: Angelic_Chain
+        Rate: 2
+      - Item: Soft_Feather
+        Rate: 300
+      - Item: Angel_Dream
+        Rate: 150
+      - Item: Stone_Of_Intelligence_
+        Rate: 15
+      - Item: Odin_itembox
+        Rate: 5
+      - Item: Shadowdecon_Ore
+        Rate: 150
+      - Item: Rune_Of_Darkness
+        Rate: 200
+      - Item: Angelgolt_Card
+        Rate: 1
+        StealProtected: true
+  - Id: 20606
+    AegisName: HOLY_FRUS
+    Name: Holy Frus
+    Level: 201
+    Hp: 2700802
+    BaseExp: 183728
+    JobExp: 128610
+    Attack: 4486
+    Attack2: 1303
+    Defense: 239
+    MagicDefense: 76
+    Str: 176
+    Agi: 148
+    Vit: 69
+    Int: 111
+    Dex: 144
+    Luk: 87
+    AttackRange: 2
+    SkillRange: 10
+    ChaseRange: 12
+    Size: Medium
+    Race: Angel
+    Element: Holy
+    ElementLevel: 4
+    WalkSpeed: 130
+    AttackDelay: 575
+    AttackMotion: 576
+    DamageMotion: 432
+    Ai: 04
+    Drops:
+      - Item: Angel_Dream
+        Rate: 300
+      - Item: Shard_Gold
+        Rate: 2
+      - Item: Brigan
+        Rate: 3000
+      - Item: Zelunium
+        Rate: 8
+      - Item: Odin_itembox
+        Rate: 10
+      - Item: Soft_Feather
+        Rate: 300
+      - Item: Rune_Of_Darkness
+        Rate: 200
+      - Item: Holy_Frus_Card
+        Rate: 1
+        StealProtected: true
+  - Id: 20607
+    AegisName: HOLY_SKOGUL
+    Name: Holy Skogul
+    Level: 202
+    Hp: 2714947
+    BaseExp: 184690
+    JobExp: 129283
+    Attack: 4582
+    Attack2: 1340
+    Defense: 247
+    MagicDefense: 77
+    Str: 179
+    Agi: 149
+    Vit: 73
+    Int: 114
+    Dex: 146
+    Luk: 88
+    AttackRange: 2
+    SkillRange: 10
+    ChaseRange: 12
+    Size: Medium
+    Race: Angel
+    Element: Holy
+    ElementLevel: 4
+    WalkSpeed: 150
+    AttackDelay: 1250
+    AttackMotion: 384
+    DamageMotion: 480
+    Ai: 04
+    Drops:
+      - Item: Angel_Dream
+        Rate: 300
+      - Item: Shard_Blue
+        Rate: 2
+      - Item: Brigan
+        Rate: 3000
+      - Item: Shadowdecon
+        Rate: 8
+      - Item: Odin_itembox
+        Rate: 10
+      - Item: Soft_Feather
+        Rate: 300
+      - Item: Rune_Of_Darkness
+        Rate: 200
+      - Item: Holy_Skogul_Card
+        Rate: 1
+        StealProtected: true
+  - Id: 20608
+    AegisName: PLASMA_ARCH
+    Name: Arch Plasma
+    Level: 198
+    Hp: 7588702
+    BaseExp: 596255
+    JobExp: 417379
+    Attack: 3675
+    Attack2: 1254
+    Defense: 229
+    MagicDefense: 75
+    Str: 145
+    Agi: 133
+    Vit: 65
+    Int: 108
+    Dex: 151
+    Luk: 79
+    AttackRange: 3
+    SkillRange: 10
+    ChaseRange: 12
+    Size: Small
+    Race: Formless
+    Element: Holy
+    ElementLevel: 4
+    WalkSpeed: 250
+    AttackDelay: 1449
+    AttackMotion: 1056
+    DamageMotion: 336
+    Ai: 04
+    Drops:
+      - Item: Scell
+        Rate: 5000
+      - Item: Light_Granule
+        Rate: 1250
+      - Item: Soft_Feather
+        Rate: 4000
+      - Item: Crystal_Jewel_
+        Rate: 125
+      - Item: Odin_itembox
+        Rate: 300
+      - Item: Old_Violet_Box
+        Rate: 125
+      - Item: Shadowdecon_Ore
+        Rate: 150
+      - Item: Plasma_Arch_Card
+        Rate: 1
+        StealProtected: true
+  - Id: 20609
+    AegisName: PLASMA_SPT
+    Name: Spectral Plasma
+    Level: 197
+    Hp: 7549720
+    BaseExp: 593192
+    JobExp: 415234
+    Attack: 3753
+    Attack2: 1156
+    Defense: 225
+    MagicDefense: 74
+    Str: 149
+    Agi: 133
+    Vit: 63
+    Int: 99
+    Dex: 148
+    Luk: 78
+    AttackRange: 1
+    SkillRange: 10
+    ChaseRange: 12
+    Size: Small
+    Race: Formless
+    Element: Ghost
+    ElementLevel: 4
+    WalkSpeed: 250
+    AttackDelay: 1053
+    AttackMotion: 1056
+    DamageMotion: 336
+    Ai: 04
+    Drops:
+      - Item: Scell
+        Rate: 5000
+      - Item: Light_Granule
+        Rate: 1250
+      - Item: Soft_Feather
+        Rate: 4000
+      - Item: Crystal_Jewel_
+        Rate: 125
+      - Item: Odin_itembox
+        Rate: 300
+      - Item: Old_Violet_Box
+        Rate: 125
+      - Item: Zelunium_Ore
+        Rate: 150
+      - Item: Plasma_Spt_Card
+        Rate: 1
+        StealProtected: true
 #  - Id: 20610
 #    AegisName: REGINLEIF
 #    DamageTaken: 10

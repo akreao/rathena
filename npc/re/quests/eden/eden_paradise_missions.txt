@@ -2,8 +2,8 @@
 //= Eden Group: 2021 mission boards
 //===== Description: =========================================
 //= kRO's April 2021 Eden Group (Paradise Group) rework replaced the
-//= old level-bracket missions with six mission boards, a logistics
-//= officer and cave shortcut NPCs. This file adds:
+//= old level-bracket missions with six mission boards, a champion hunt
+//= board, a logistics officer and cave shortcut NPCs. This file adds:
 //=   Mission boards        34-44,38 and 25-35,98  six boards, twice
 //=     1~39, 40~69 and 70~99    town daily hunts, EXP only
 //=     100~110 and 120~140      town daily hunts, EXP and Eden Coins
@@ -13,6 +13,8 @@
 //=                                           on a matching board hunt
 //=   Will-o'-Wisps (Payon Cave 4F) and Old Crates (Shipwreck 1F)
 //=                                           for missions 21019 and 21130
+//=   Champion Hunt Board   16,33 and 19,96   one champion monster a day
+//=   Sogil                 18,35 and 21,96   takes the champion reports
 //=
 //= Each board quest uses kRO's own quest id, so it shares its
 //= cooldown with the town daily of the same id. Cooldowns reset at
@@ -38,12 +40,36 @@
 //============================================================
 
 // Mission board. Each duplicate's hidden name ends in its board
-// number: "#edmb<board><copy>", e.g. "#edmb1a".
+// number: "#edmb<board><copy>", e.g. "#edmb1a". Board 7 is the champion
+// hunt board; its hunts are reported to Sogil ("#edmb7r<copy>").
 -	script	Eden Mission Board#edmb	-1,{
 	if (!getextension("eden_rework_2021"))
 		end;
 	.@b = atoi(charat(strnpcinfo(2), 4));
 	.@name$ = "[" + .board$[.@b] + "]";
+	if (charat(strnpcinfo(2), 5) == "r") {
+		.@name$ = "[Sogil]";
+		mes .@name$;
+		if (!callfunc("F_HasEdenGroupMark")) {
+			mes "Champion hunts are for Eden Group members. Talk to Secretary Lime Evenor if you'd like to join.";
+			close;
+		}
+		for (.@i = .first[.@b]; .@i < .last[.@b]; ++.@i) {
+			if (callsub(S_State, .@i) == 4)
+				++.@ready;
+		}
+		if (!.@ready) {
+			mes "I take the reports for the champion hunts on the board next to me.";
+			mes "Bring down the champion you took on, then come and see me.";
+			close;
+		}
+		mes "Back from a champion hunt? Let's see.";
+		next;
+		callsub L_ReportAll, .@b, .@name$;
+		mes .@name$;
+		mes "Good work. Come back tomorrow for another.";
+		close;
+	}
 	if (!callfunc("F_HasEdenGroupMark")) {
 		mes .@name$;
 		mes "- You need an ^4d4dff'Eden Group Mark'^000000 -";
@@ -60,16 +86,18 @@
 		mes "- Missions for Eden Group members. -";
 		if (.@b == 6)
 			mes "- Base level 130 and up. -";
+		if (.@b == 7)
+			mes "- Bring down one champion, then report to Sogil. -";
 		mes "- Missions reset daily at 4:00. -";
 		if (.@ready)
 			mes "- ^00AA00" + .@ready + "^000000 finished, ready to report. -";
 		next;
-		switch (select("Browse missions", (.@ready ? "Report all finished missions" : ""), "Close")) {
+		switch (select("Browse missions", (.@ready && .@b != 7 ? "Report all finished missions" : ""), "Close")) {
 		case 1:
 			callsub L_Browse, .@b;
 			break;
 		case 2:
-			callsub L_ReportAll, .@b;
+			callsub L_ReportAll, .@b, .@name$;
 			break;
 		case 3:
 			close;
@@ -198,9 +226,16 @@ L_Mission:
 		next;
 		return;
 	case 4:
+		if (.@b == 7) {
+			mes .@name$;
+			mes "- Hunt complete. Report to Sogil -";
+			mes "- next to this board. -";
+			next;
+			return;
+		}
 		if (select("Report this mission:Back") == 2)
 			return;
-		callsub L_Result, .@b, .@i, callsub(S_Report, .@i);
+		callsub L_Result, .@name$, .@i, callsub(S_Report, .@i);
 		return;
 	}
 	return;
@@ -210,14 +245,14 @@ L_ReportAll:
 	.@b = getarg(0);
 	for (.@i = .first[.@b]; .@i < .last[.@b]; ++.@i) {
 		if (callsub(S_State, .@i) == 4)
-			callsub L_Result, .@b, .@i, callsub(S_Report, .@i);
+			callsub L_Result, getarg(1), .@i, callsub(S_Report, .@i);
 	}
 	return;
 
-// Tells the player how a report went.
+// Tells the player how a report went: speaker, mission, S_Report's result.
 L_Result:
 	.@i = getarg(1);
-	mes "[" + .board$[getarg(0)] + "]";
+	mes getarg(0);
 	mes "^0000FF" + .q_title$[.@i] + "^000000";
 	if (getarg(2) == 1)
 		mes "- You don't have the items for this mission yet. -";
@@ -341,7 +376,7 @@ OnInit:
 	if (.rows)
 		end;
 	setarray .board$[1], "1~39 Mission Board", "40~69 Mission Board", "70~99 Mission Board",
-		"100~110 Mission Board", "120~140 Mission Board", "Advanced Mission Board";
+		"100~110 Mission Board", "120~140 Mission Board", "Advanced Mission Board", "Champion Hunt Board";
 	// Row 0 is a placeholder so that .first[] can use 0 for "unset".
 	callsub S_Row, 0, 0, 0, 0, "", "", "", 0, 0, 0, "", "";
 	// 1~39 Mission Board
@@ -591,6 +626,97 @@ OnInit:
 	callsub S_Row, 6, 19060, 19061, 190, "Lv190", "Ancient Odin Temple", "Hunt 240 monsters in Ancient Odin Temple", 98882731, 69217943, 4, "", "";
 	callsub S_Row, 6, 19062, 19063, 190, "Lv190", "Abyss Lake Underground Cave, 4F", "Hunt 240 monsters in Abyss Lake Underground Cave, 4F", 79912332, 55938546, 4, "", "";
 	callsub S_Row, 6, 19064, 19065, 190, "Lv190", "Second Power Plant", "Hunt 240 monsters in Second Power Plant", 63975339, 44782794, 4, "", "";
+
+	// Champion Hunt Board
+	// [unverified] Rune-Midgard and Schwarzwald Fields rows: hazyforest and twRO agree
+	// unless noted. The other rows are from hazyforest only.
+	// [unverified] 21501: Kafra ticket: twRO only
+	callsub S_Row, 7, 21501, 21502, 10, "Rune-Midgard East", "Elusive Hornet Hunt", "Hunt 1 Elusive Hornet, found on prt_fild05", 600, 1350, 0, "", "7060,1";
+	// [unverified] 21503: Kafra ticket: twRO only
+	callsub S_Row, 7, 21503, 21504, 10, "Rune-Midgard East", "Elusive Rocker Hunt", "Hunt 1 Elusive Rocker, found on prt_fild07", 740, 1670, 0, "", "7060,1";
+	// [unverified] 21505: level: hazyforest 20, twRO 10; Kafra ticket: twRO only
+	callsub S_Row, 7, 21505, 21506, 20, "Rune-Midgard East", "Elusive Ambernite Hunt", "Hunt 1 Elusive Ambernite, found on prt_fild04", 870, 1940, 0, "", "7060,1";
+	// [unverified] 21507: Kafra ticket: twRO only
+	callsub S_Row, 7, 21507, 21508, 20, "Rune-Midgard East", "Muka Ringleader Hunt", "Hunt 1 Muka Ringleader, found on moc_fild01", 1080, 3650, 0, "", "7060,1";
+	// [unverified] 21509: Kafra ticket: twRO only
+	callsub S_Row, 7, 21509, 21510, 20, "Rune-Midgard East", "Bigfoot Ringleader Hunt", "Hunt 1 Bigfoot Ringleader, found on pay_fild07", 1350, 4550, 0, "", "7060,1";
+	// [unverified] 21511: Kafra ticket: twRO only
+	callsub S_Row, 7, 21511, 21512, 30, "Rune-Midgard East", "Solid Horn Hunt", "Hunt 1 Solid Horn, found on pay_fild09", 1620, 5450, 0, "", "7060,1";
+	// [unverified] 21513: Kafra ticket: twRO only
+	callsub S_Row, 7, 21513, 21514, 30, "Rune-Midgard East", "Swift Elder Willow Hunt", "Hunt 1 Swift Elder Willow, found on prt_fild10", 1740, 5900, 0, "", "7060,1";
+	// [unverified] 21515: Kafra ticket: twRO only
+	callsub S_Row, 7, 21515, 21516, 30, "Rune-Midgard East", "Solid Coco Hunt", "Hunt 1 Solid Coco, found on gef_fild02", 2030, 6840, 0, "", "7060,1";
+	// [unverified] 21517: Kafra ticket: twRO only
+	callsub S_Row, 7, 21517, 21518, 30, "Rune-Midgard East", "Swift Yoyo Hunt", "Hunt 1 Swift Yoyo, found on prt_fild03", 2030, 6840, 0, "", "7060,1";
+	// [unverified] 21519: Kafra ticket: twRO only
+	callsub S_Row, 7, 21519, 21520, 40, "Rune-Midgard East", "Elusive Magnolia Hunt", "Hunt 1 Elusive Magnolia, found on prt_fild09", 3470, 11120, 0, "", "7060,1";
+	callsub S_Row, 7, 21521, 21522, 40, "Rune-Midgard Central", "Furious Orc Warrior Hunt", "Hunt 1 Furious Orc Warrior, found on gef_fild10", 2630, 12150, 0, "", "";
+	callsub S_Row, 7, 21523, 21524, 40, "Rune-Midgard Central", "Swift Goblin Hunt", "Hunt 1 Swift Goblin, found on gef_fild11", 2760, 9320, 0, "", "";
+	callsub S_Row, 7, 21525, 21526, 40, "Rune-Midgard Central", "Elusive Goblin Hunt", "Hunt 1 Elusive Goblin, found on prt_fild11", 2760, 9320, 0, "", "";
+	callsub S_Row, 7, 21527, 21528, 75, "Rune-Midgard Central", "Swift Petite Hunt", "Hunt 1 Swift Petite, found on gef_fild08", 9650, 29610, 0, "", "";
+	callsub S_Row, 7, 21529, 21530, 75, "Rune-Midgard Central", "Solid Petite Hunt", "Hunt 1 Solid Petite, found on gef_fild06", 9650, 29610, 0, "", "";
+	callsub S_Row, 7, 21786, 21787, 100, "Rune-Midgard Central", "Elusive Carat Hunt", "Hunt 1 Elusive Carat, found on gl_cas01", 17490, 43263, 0, "", "";
+	callsub S_Row, 7, 21788, 21789, 100, "Rune-Midgard Central", "Furious Majoruros Hunt", "Hunt 1 Furious Majoruros, found on gl_dun02", 27810, 65340, 0, "", "";
+	callsub S_Row, 7, 21790, 21791, 110, "Rune-Midgard Central", "Solid Raydric Hunt", "Hunt 1 Solid Raydric, found on gl_knt01", 27000, 61626, 0, "", "";
+	// [unverified] 21792: job EXP: hazyforest 61,626, twRO 64,626
+	callsub S_Row, 7, 21792, 21793, 110, "Rune-Midgard Central", "Swift Raydric Hunt", "Hunt 1 Swift Raydric, found on gl_knt02", 27000, 61626, 0, "", "";
+	callsub S_Row, 7, 21794, 21795, 110, "Rune-Midgard Central", "Furious Wanderer Hunt", "Hunt 1 Furious Wanderer, found on gl_cas02", 33045, 110631, 0, "", "";
+	callsub S_Row, 7, 21531, 21532, 50, "Rune-Midgard West", "Furious Sandman Hunt", "Hunt 1 Furious Sandman, found on moc_fild16", 4920, 15840, 0, "", "";
+	callsub S_Row, 7, 21533, 21534, 60, "Rune-Midgard West", "Swift Seal Hunt", "Hunt 1 Swift Seal, found on cmd_fild02", 2700, 9090, 0, "", "";
+	callsub S_Row, 7, 21535, 21536, 60, "Rune-Midgard West", "Elusive Grove Hunt", "Hunt 1 Elusive Grove, found on cmd_fild01", 3830, 12330, 0, "", "";
+	callsub S_Row, 7, 21537, 21538, 60, "Rune-Midgard West", "Solid Alligator Hunt", "Hunt 1 Solid Alligator, found on cmd_fild03", 3830, 12330, 0, "", "";
+	callsub S_Row, 7, 21539, 21540, 60, "Rune-Midgard West", "Furious Wootan Fighter Hunt", "Hunt 1 Furious Wootan Fighter, found on um_fild02", 5580, 17960, 0, "", "";
+	callsub S_Row, 7, 21541, 21542, 60, "Rune-Midgard West", "Swift Dryad Hunt", "Hunt 1 Swift Dryad, found on um_fild01", 6590, 21110, 0, "", "";
+	callsub S_Row, 7, 21796, 21797, 120, "Rune-Midgard West", "Swift Zombie Slaughter Hunt", "Hunt 1 Swift Zombie Slaughter, found on abbey02", 31035, 80238, 0, "", "";
+	callsub S_Row, 7, 21798, 21799, 120, "Rune-Midgard West", "Swift Banshee Hunt", "Hunt 1 Swift Banshee, found on abbey01", 44070, 103950, 0, "", "";
+	callsub S_Row, 7, 21800, 21801, 120, "Rune-Midgard West", "Necromancer Ringleader Hunt", "Hunt 1 Necromancer Ringleader, found on abbey03", 44850, 148005, 0, "", "";
+	callsub S_Row, 7, 21543, 21544, 40, "Schwarzwald Fields", "Swift Shellfish Hunt", "Hunt 1 Swift Shellfish, found on hu_fild06", 3180, 10220, 0, "", "";
+	callsub S_Row, 7, 21545, 21546, 70, "Schwarzwald Fields", "Solid Geographer Hunt", "Hunt 1 Solid Geographer, found on yuno_fild01", 7410, 22730, 0, "", "";
+	callsub S_Row, 7, 21547, 21548, 70, "Schwarzwald Fields", "Grand Peco Ringleader Hunt", "Hunt 1 Grand Peco Ringleader, found on yuno_fild08", 7320, 22460, 0, "", "";
+	callsub S_Row, 7, 21549, 21550, 70, "Schwarzwald Fields", "Goat Ringleader Hunt", "Hunt 1 Goat Ringleader, found on yuno_fild07", 8790, 26910, 0, "", "";
+	callsub S_Row, 7, 21551, 21552, 70, "Schwarzwald Fields", "Swift Sleeper Hunt", "Hunt 1 Swift Sleeper, found on yuno_fild02", 8520, 26100, 0, "", "";
+	// [unverified] 21553: level: hazyforest 60, twRO 80
+	callsub S_Row, 7, 21553, 21554, 60, "Schwarzwald Fields", "Swift Stem Worm Hunt", "Hunt 1 Swift Stem Worm, found on lhz_fild02", 8910, 27320, 0, "", "";
+	callsub S_Row, 7, 21555, 21556, 80, "Schwarzwald Fields", "Solid Holden Hunt", "Hunt 1 Solid Holden, found on ein_fild06", 9950, 30560, 0, "", "";
+	callsub S_Row, 7, 21557, 21558, 80, "Schwarzwald Fields", "Swift Rafflesia Hunt", "Hunt 1 Swift Rafflesia, found on lhz_fild01", 9650, 29610, 0, "", "";
+	callsub S_Row, 7, 21559, 21560, 80, "Schwarzwald Fields", "Venomous Ringleader Hunt", "Hunt 1 Venomous Ringleader, found on ein_fild04", 9800, 30060, 0, "", "";
+	callsub S_Row, 7, 21561, 21562, 80, "Schwarzwald Fields", "Furious Noxious Hunt", "Hunt 1 Furious Noxious, found on ein_fild05", 7320, 40140, 0, "", "";
+	callsub S_Row, 7, 21563, 21564, 80, "Schwarzwald Fields", "Elusive Novus Hunt", "Hunt 1 Elusive Novus, found on hu_fild05", 10770, 33840, 0, "", "";
+	callsub S_Row, 7, 21802, 21803, 100, "Schwarzwald Dungeons", "Furious Nightmare Terror Hunt", "Hunt 1 Furious Nightmare Terror, found on mag_dun02", 18315, 54339, 0, "", "";
+	callsub S_Row, 7, 21804, 21805, 110, "Schwarzwald Dungeons", "Ancient Mimic Ringleader Hunt", "Hunt 1 Ancient Mimic Ringleader, found on tha_t02", 23865, 61380, 0, "", "";
+	callsub S_Row, 7, 21806, 21807, 110, "Schwarzwald Dungeons", "Solid Death Word Hunt", "Hunt 1 Solid Death Word, found on tha_t04", 25005, 57072, 0, "", "";
+	callsub S_Row, 7, 21808, 21809, 110, "Schwarzwald Dungeons", "Furious Venatu Hunt", "Hunt 1 Furious Venatu, found on juperos_01", 23865, 60438, 0, "", "";
+	callsub S_Row, 7, 21810, 21811, 110, "Schwarzwald Dungeons", "Swift Dimik Hunt", "Hunt 1 Swift Dimik, found on jupe_core", 28425, 76773, 0, "", "";
+	callsub S_Row, 7, 21812, 21813, 120, "Schwarzwald Dungeons", "Furious Ferus Hunt", "Hunt 1 Furious Ferus, found on abyss_01", 40800, 88704, 0, "", "";
+	callsub S_Row, 7, 21814, 21815, 120, "Schwarzwald Dungeons", "Solid Acidus Hunt", "Hunt 1 Solid Acidus, found on abyss_03", 44070, 100584, 0, "", "";
+	callsub S_Row, 7, 21816, 21817, 120, "Schwarzwald Dungeons", "Elusive Lady Solace Hunt", "Hunt 1 Elusive Lady Solace, found on tha_t09", 36630, 119244, 0, "", "";
+	callsub S_Row, 7, 21818, 21819, 120, "Schwarzwald Dungeons", "Dame of Sentinel Ringleader Hunt", "Hunt 1 Dame of Sentinel Ringleader, found on tha_t12", 41670, 126225, 0, "", "";
+	callsub S_Row, 7, 21820, 21821, 130, "Schwarzwald Dungeons", "Laurell Weinder Ringleader Hunt", "Hunt 1 Laurell Weinder Ringleader, found on lhz_dun02", 43875, 162606, 0, "", "";
+	callsub S_Row, 7, 21822, 21823, 140, "Schwarzwald Dungeons", "Solid Cecil Damon Hunt", "Hunt 1 Solid Cecil Damon, found on lhz_dun03", 248505, 818976, 0, "", "";
+	callsub S_Row, 7, 21565, 21566, 90, "Arunafeltz", "Solid Roween Hunt", "Hunt 1 Solid Roween, found on ra_fild12", 15210, 42800, 0, "", "";
+	callsub S_Row, 7, 21567, 21568, 90, "Arunafeltz", "Stapo Ringleader Hunt", "Hunt 1 Stapo Ringleader, found on ve_fild07", 14160, 39870, 0, "", "";
+	callsub S_Row, 7, 21824, 21825, 100, "Arunafeltz", "Swift Hill Wind Hunt", "Hunt 1 Swift Hill Wind, found on ra_fild03", 17100, 42273, 0, "", "";
+	callsub S_Row, 7, 21826, 21827, 100, "Arunafeltz", "Solid Kobold Hunt", "Hunt 1 Solid Kobold, found on ra_fild05", 20460, 50637, 0, "", "";
+	callsub S_Row, 7, 21828, 21829, 100, "Arunafeltz", "Swift Kobold Archer Hunt", "Hunt 1 Swift Kobold Archer, found on ra_fild06", 19440, 77814, 0, "", "";
+	callsub S_Row, 7, 21830, 21831, 100, "Arunafeltz", "Solid Snowier Hunt", "Hunt 1 Solid Snowier, found on ice_dun02", 17490, 43263, 0, "", "";
+	callsub S_Row, 7, 21832, 21833, 100, "Arunafeltz", "Swift Ice Titan Hunt", "Hunt 1 Swift Ice Titan, found on ice_dun03", 24510, 78507, 0, "", "";
+	callsub S_Row, 7, 21834, 21835, 120, "Arunafeltz", "Isilla Ringleader Hunt", "Hunt 1 Isilla Ringleader, found on ra_san02", 33690, 76971, 0, "", "";
+	callsub S_Row, 7, 21836, 21837, 120, "Arunafeltz", "Echio Ringleader Hunt", "Hunt 1 Echio Ringleader, found on ra_san04", 35970, 82170, 0, "", "";
+	callsub S_Row, 7, 21838, 21839, 120, "Arunafeltz", "Swift Agav Hunt", "Hunt 1 Swift Agav, found on ra_san05", 38340, 87516, 0, "", "";
+	callsub S_Row, 7, 21569, 21570, 20, "Other Regions", "Furious Smokie Hunt", "Hunt 1 Furious Smokie, found on ayo_fild01", 1350, 4550, 0, "", "";
+	callsub S_Row, 7, 21571, 21572, 50, "Other Regions", "Dumpling Child Ringleader Hunt", "Hunt 1 Dumpling Child Ringleader, found on gon_fild01", 4190, 13410, 0, "", "";
+	callsub S_Row, 7, 21573, 21574, 70, "Other Regions", "Furious Toucan Hunt", "Hunt 1 Furious Toucan, found on bra_fild01", 5190, 12240, 0, "", "";
+	callsub S_Row, 7, 21575, 21576, 70, "Other Regions", "Solid Side Winder Hunt", "Hunt 1 Solid Side Winder, found on mosk_fild02", 5670, 18230, 0, "", "";
+	callsub S_Row, 7, 21577, 21578, 70, "Other Regions", "Swift Karakasa Hunt", "Hunt 1 Swift Karakasa, found on ama_fild01", 6320, 19350, 0, "", "";
+	callsub S_Row, 7, 21579, 21580, 80, "Other Regions", "Elusive Mi Gao Hunt", "Hunt 1 Elusive Mi Gao, found on lou_fild01", 9900, 34380, 0, "", "";
+	callsub S_Row, 7, 21840, 21841, 100, "Other Regions", "Elusive Luciola Vespa Hunt", "Hunt 1 Elusive Luciola Vespa, found on spl_fild03", 22095, 53607, 0, "", "";
+	callsub S_Row, 7, 21842, 21843, 110, "Other Regions", "Solid Dark Pinguicula Hunt", "Hunt 1 Solid Dark Pinguicula, found on spl_fild01", 20475, 71775, 0, "", "";
+	callsub S_Row, 7, 21844, 21845, 120, "Other Regions", "Swift Centipede Hunt", "Hunt 1 Swift Centipede, found on dic_fild01", 31200, 80487, 0, "", "";
+	callsub S_Row, 7, 21846, 21847, 130, "Other Regions", "Dolomedes Ringleader Hunt", "Hunt 1 Dolomedes Ringleader, found on dic_fild02", 50265, 153054, 0, "", "";
+	// [unverified] 21848: kRO places it on Scaraba Hall 1F; here it spawns on dic_dun02
+	callsub S_Row, 7, 21848, 21849, 130, "Other Regions", "Elusive Antler Scaraba Hunt", "Hunt 1 Elusive Antler Scaraba, found on dic_dun02", 47475, 156024, 0, "", "";
+	callsub S_Row, 7, 21850, 21851, 130, "Other Regions", "Miming Ringleader Hunt", "Hunt 1 Miming Ringleader, found on bif_fild01", 69225, 187110, 0, "", "";
+	callsub S_Row, 7, 21852, 21853, 130, "Other Regions", "Furious Little Fatum Hunt", "Hunt 1 Furious Little Fatum, found on bif_fild02", 73125, 193050, 0, "", "";
 	end;
 }
 
@@ -609,6 +735,13 @@ moc_para01,29,98,3	duplicate(Eden Mission Board#edmb)	70~99 Mission Board#edmb3b
 moc_para01,31,98,3	duplicate(Eden Mission Board#edmb)	100~110 Mission Board#edmb4b	857
 moc_para01,33,98,3	duplicate(Eden Mission Board#edmb)	120~140 Mission Board#edmb5b	857
 moc_para01,35,98,3	duplicate(Eden Mission Board#edmb)	Advanced Mission Board#edmb6b	857
+
+// Champion hunts: one champion monster a day, reported to Sogil.
+// Positions are from the kRO client's navigation table; sprites [unverified].
+moc_para01,16,33,4	duplicate(Eden Mission Board#edmb)	Champion Hunt Board#edmb7a	857
+moc_para01,19,96,4	duplicate(Eden Mission Board#edmb)	Champion Hunt Board#edmb7b	857
+moc_para01,18,35,4	duplicate(Eden Mission Board#edmb)	Sogil#edmb7ra	4_M_EDEN_GUARDER
+moc_para01,21,96,4	duplicate(Eden Mission Board#edmb)	Sogil#edmb7rb	4_M_EDEN_GUARDER
 
 // Item deliveries: 30 of one loot item for base EXP, once an hour each.
 // Sprite [unverified].
@@ -825,6 +958,7 @@ OnInit:
 		"100~110 Mission Board#edmb4a", "120~140 Mission Board#edmb5a", "Advanced Mission Board#edmb6a",
 		"1~39 Mission Board#edmb1b", "40~69 Mission Board#edmb2b", "70~99 Mission Board#edmb3b",
 		"100~110 Mission Board#edmb4b", "120~140 Mission Board#edmb5b", "Advanced Mission Board#edmb6b",
+		"Champion Hunt Board#edmb7a", "Champion Hunt Board#edmb7b", "Sogil#edmb7ra", "Sogil#edmb7rb",
 		"Logistics Officer#edmb1", "Logistics Officer#edmb2",
 		"Rigel#edmb", "Aker#edmb", "Ayla#edmb", "Minmin#edmb",
 		"Will-o'-Wisp#edmb1", "Will-o'-Wisp#edmb2", "Will-o'-Wisp#edmb3", "Will-o'-Wisp#edmb4",
