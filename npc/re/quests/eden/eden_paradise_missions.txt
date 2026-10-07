@@ -1,0 +1,720 @@
+//===== rAthena Script =======================================
+//= Eden Group: 2021 mission boards
+//===== Description: =========================================
+//= kRO's April 2021 Eden Group (Paradise Group) rework replaced the
+//= old level-bracket missions with six mission boards, a logistics
+//= officer and cave shortcut NPCs. This file adds:
+//=   Mission boards        34-44,38 and 25-35,98  six boards, twice
+//=     1~39, 40~69 and 70~99    town daily hunts, EXP only
+//=     100~110 and 120~140      town daily hunts, EXP and Eden Coins
+//=     Advanced (Lv130-190)     quests 19000-19064, EXP and Eden Coins
+//=   Logistics Officer     29,35 and 37,96   30-item deliveries, hourly
+//=   Rigel, Aker, Ayla, Minmin               cave shortcuts for members
+//=                                           on a matching board hunt
+//=
+//= Each board quest uses kRO's own quest id, so it shares its
+//= cooldown with the town daily of the same id. Cooldowns reset at
+//= 04:00; deliveries can be repeated after an hour.
+//=
+//= Off by default. It runs only when the server extension
+//= "eden_rework_2021" is on (db/import/extension_db.yml, or a
+//= Ragnarok Offline mod's db/extension_db.yml). It is all or nothing:
+//= while it is on, the old mission boards, the old 100-140 mission
+//= NPCs and their field NPCs are hidden, and these take their place.
+//= While it is off, only the old ones are shown.
+//=
+//= Sources: quest ids, cooldown ids, titles and kill counts are from
+//= the kRO client (Dec 2025). Lv1-99 EXP is from twRO (ro.ntome.com
+//= and Bahamut 2838486, which agree), Lv100-190 EXP and coins from
+//= the Eden rework spec (Inven 3641 and 5207, twRO and thRO for the
+//= coins), deliveries from Bahamut 2838486 and hazyforest. Anything
+//= not confirmed by two sources is marked [unverified] where it is
+//= used. The dialogue is written for this script, not translated
+//= from kRO.
+//===== Changelogs: ==========================================
+//= 1.0 First version.
+//============================================================
+
+// Mission board. Each duplicate's hidden name ends in its board
+// number: "#edmb<board><copy>", e.g. "#edmb1a".
+-	script	Eden Mission Board#edmb	-1,{
+	if (!getextension("eden_rework_2021"))
+		end;
+	.@b = atoi(charat(strnpcinfo(2), 4));
+	.@name$ = "[" + .board$[.@b] + "]";
+	if (!callfunc("F_HasEdenGroupMark")) {
+		mes .@name$;
+		mes "- You need an ^4d4dff'Eden Group Mark'^000000 -";
+		mes "- to take these missions. -";
+		close;
+	}
+	while (1) {
+		.@ready = 0;
+		for (.@i = .first[.@b]; .@i < .last[.@b]; ++.@i) {
+			if (callsub(S_State, .@i) == 4)
+				++.@ready;
+		}
+		mes .@name$;
+		mes "- Missions for Eden Group members. -";
+		if (.@b == 6)
+			mes "- Base level 130 and up. -";
+		mes "- Missions reset daily at 4:00. -";
+		if (.@ready)
+			mes "- ^00AA00" + .@ready + "^000000 finished, ready to report. -";
+		next;
+		switch (select("Browse missions", (.@ready ? "Report all finished missions" : ""), "Close")) {
+		case 1:
+			callsub L_Browse, .@b;
+			break;
+		case 2:
+			callsub L_ReportAll, .@b;
+			break;
+		case 3:
+			close;
+		}
+	}
+	end;
+
+// Lists the board's areas, then the missions in one area.
+L_Browse:
+	.@b = getarg(0);
+	.@name$ = "[" + .board$[.@b] + "]";
+	for (.@i = .first[.@b]; .@i < .last[.@b]; ++.@i) {
+		if (inarray(.@area$, .q_area$[.@i]) < 0)
+			.@area$[getarraysize(.@area$)] = .q_area$[.@i];
+	}
+	while (1) {
+		mes .@name$;
+		mes "- Choose an area. -";
+		next;
+		.@a = select(implode(.@area$, ":") + ":Back") - 1;
+		if (.@a == getarraysize(.@area$))
+			return;
+		while (1) {
+			deletearray .@row;
+			.@menu$ = "";
+			for (.@i = .first[.@b]; .@i < .last[.@b]; ++.@i) {
+				if (.q_area$[.@i] != .@area$[.@a])
+					continue;
+				.@row[getarraysize(.@row)] = .@i;
+				.@s = callsub(S_State, .@i);
+				.@t$ = replacestr(.q_title$[.@i], ":", "::");
+				if (.@s == 1)
+					.@menu$ += "^999999[Lv" + .q_lv[.@i] + "] " + .@t$ + "^000000:";
+				else if (.@s == 2)
+					.@menu$ += "^999999[Done] " + .@t$ + "^000000:";
+				else if (.@s == 3)
+					.@menu$ += "^0055FF[Active]^000000 " + .@t$ + ":";
+				else if (.@s == 4)
+					.@menu$ += "^00AA00[Report]^000000 " + .@t$ + ":";
+				else
+					.@menu$ += "[Lv" + .q_lv[.@i] + "] " + .@t$ + ":";
+			}
+			mes .@name$;
+			mes "- " + .@area$[.@a] + " -";
+			next;
+			.@m = select(.@menu$ + "Back") - 1;
+			if (.@m == getarraysize(.@row))
+				break;
+			callsub L_Mission, .@b, .@row[.@m];
+		}
+	}
+	end;
+
+// Shows one mission and what can be done with it now.
+L_Mission:
+	.@b = getarg(0);
+	.@i = getarg(1);
+	.@name$ = "[" + .board$[.@b] + "]";
+	.@s = callsub(S_State, .@i);
+	mes .@name$;
+	mes "^0000FF" + .q_title$[.@i] + "^000000";
+	mes "Area: " + .q_area$[.@i] + ", base level " + .q_lv[.@i] + "+";
+	if (.q_goal$[.@i] != "")
+		mes .q_goal$[.@i] + ".";
+	if (.q_items$[.@i] != "") {
+		explode(.@p$, .q_items$[.@i], ",");
+		for (.@k = 0; .@k < getarraysize(.@p$); .@k += 2)
+			mes "Bring " + .@p$[.@k + 1] + " " + getitemname(atoi(.@p$[.@k])) + ".";
+	}
+	.@r$ = "Base EXP " + callfunc("F_InsertComma", .q_exp[.@i]);
+	if (.q_jexp[.@i])
+		.@r$ += ", Job EXP " + callfunc("F_InsertComma", .q_jexp[.@i]);
+	if (.q_coin[.@i])
+		.@r$ += ", " + .q_coin[.@i] + " " + getitemname(25223);
+	if (.q_rewards$[.@i] != "") {
+		explode(.@p$, .q_rewards$[.@i], ",");
+		for (.@k = 0; .@k < getarraysize(.@p$); .@k += 2)
+			.@r$ += ", " + .@p$[.@k + 1] + " " + getitemname(atoi(.@p$[.@k]));
+	}
+	mes "Reward: " + .@r$ + ".";
+	next;
+	switch (.@s) {
+	case 0:
+		if (select("Accept this mission:Back") == 2)
+			return;
+		setquest .q_id[.@i];
+		if (.q_id2[.@i] && checkquest(.q_id2[.@i], HAVEQUEST) < 0)
+			setquest .q_id2[.@i];
+		mes .@name$;
+		mes "- Mission accepted. -";
+		mes "- Report back to any -";
+		mes "- Eden Group mission board. -";
+		next;
+		return;
+	case 1:
+		mes .@name$;
+		mes "- You need base level " + .q_lv[.@i] + " -";
+		mes "- for this mission. -";
+		next;
+		return;
+	case 2:
+		mes .@name$;
+		mes "- You have done this mission -";
+		mes "- today. It opens again -";
+		mes "- after 4:00. -";
+		next;
+		return;
+	case 3:
+		if (select("Keep going:Give up this mission") == 1)
+			return;
+		callsub S_Drop, .@i;
+		mes .@name$;
+		mes "- Mission dropped. You can -";
+		mes "- take it again any time. -";
+		next;
+		return;
+	case 4:
+		if (select("Report this mission:Back") == 2)
+			return;
+		callsub L_Result, .@b, .@i, callsub(S_Report, .@i);
+		return;
+	}
+	return;
+
+// Reports every finished mission on the board in one go.
+L_ReportAll:
+	.@b = getarg(0);
+	for (.@i = .first[.@b]; .@i < .last[.@b]; ++.@i) {
+		if (callsub(S_State, .@i) == 4)
+			callsub L_Result, .@b, .@i, callsub(S_Report, .@i);
+	}
+	return;
+
+// Tells the player how a report went.
+L_Result:
+	.@i = getarg(1);
+	mes "[" + .board$[getarg(0)] + "]";
+	mes "^0000FF" + .q_title$[.@i] + "^000000";
+	if (getarg(2) == 1)
+		mes "- You don't have the items for this mission yet. -";
+	else if (getarg(2) == 2)
+		mes "- You're carrying too much to take the reward. Free up some weight and try again. -";
+	else
+		mes "- Mission reported. Thank you! -";
+	next;
+	return;
+
+// 0 = can accept, 1 = level too low, 2 = cooling down, 3 = in progress,
+// 4 = finished. Clears a cooldown that has run out.
+S_State:
+	.@i = getarg(0);
+	.@h = checkquest(.q_id[.@i], HUNTING);
+	.@h2 = (.q_id2[.@i] ? checkquest(.q_id2[.@i], HUNTING) : 2);
+	if (.@h == 2 && .@h2 == 2)
+		return 4;
+	if (.@h >= 0 || (.q_id2[.@i] && .@h2 >= 0))
+		return 3;
+	.@t = checkquest(.q_cd[.@i], PLAYTIME);
+	if (.@t == 2) {
+		erasequest .q_cd[.@i];
+		.@t = -1;
+	}
+	if (.@t >= 0)
+		return 2;
+	if (BaseLevel < .q_lv[.@i])
+		return 1;
+	return 0;
+
+// Pays a finished mission. 0 = done, 1 = items missing, 2 = overweight.
+S_Report:
+	.@i = getarg(0);
+	if (.q_items$[.@i] != "") {
+		explode(.@p$, .q_items$[.@i], ",");
+		for (.@k = 0; .@k < getarraysize(.@p$); .@k += 2) {
+			if (countitem(atoi(.@p$[.@k])) < atoi(.@p$[.@k + 1]))
+				return 1;
+		}
+	}
+	.@n = 0;
+	if (.q_coin[.@i]) {
+		.@rid[0] = 25223;
+		.@rcnt[0] = .q_coin[.@i];
+		.@n = 1;
+	}
+	if (.q_rewards$[.@i] != "") {
+		explode(.@r$, .q_rewards$[.@i], ",");
+		for (.@k = 0; .@k < getarraysize(.@r$); .@k += 2) {
+			.@rid[.@n] = atoi(.@r$[.@k]);
+			.@rcnt[.@n] = atoi(.@r$[.@k + 1]);
+			++.@n;
+		}
+	}
+	if (.@n && !checkweight2(.@rid, .@rcnt))
+		return 2;
+	for (.@k = 0; .@k < getarraysize(.@p$); .@k += 2)
+		delitem atoi(.@p$[.@k]), atoi(.@p$[.@k + 1]);
+	callsub S_Drop, .@i;
+	if (checkquest(.q_cd[.@i], HAVEQUEST) >= 0)
+		erasequest .q_cd[.@i];
+	setquest .q_cd[.@i];
+	if (.q_jexp[.@i])
+		getexp .q_exp[.@i], .q_jexp[.@i];
+	else
+		getexp .q_exp[.@i], 0;
+	for (.@k = 0; .@k < .@n; ++.@k)
+		getitem .@rid[.@k], .@rcnt[.@k];
+	return 0;
+
+// Removes a mission (and its paired quest) from the quest log.
+S_Drop:
+	if (checkquest(.q_id[getarg(0)], HAVEQUEST) >= 0)
+		erasequest .q_id[getarg(0)];
+	if (.q_id2[getarg(0)] && checkquest(.q_id2[getarg(0)], HAVEQUEST) >= 0)
+		erasequest .q_id2[getarg(0)];
+	return;
+
+// board, quest, cooldown, base level, area, title, goal, base EXP,
+// job EXP, Eden Coins, "item,count,..." handed in, "item,count,..." given.
+// .q_id2 is a second quest given and paid with the row's quest, for a hunt
+// with more targets than one quest can hold.
+S_Row:
+	.@n = .rows;
+	.q_board[.@n] = getarg(0);
+	.q_id[.@n] = getarg(1);
+	.q_cd[.@n] = getarg(2);
+	.q_lv[.@n] = getarg(3);
+	.q_area$[.@n] = getarg(4);
+	.q_title$[.@n] = getarg(5);
+	.q_goal$[.@n] = getarg(6);
+	.q_exp[.@n] = getarg(7);
+	.q_jexp[.@n] = getarg(8);
+	.q_coin[.@n] = getarg(9);
+	.q_items$[.@n] = getarg(10);
+	.q_rewards$[.@n] = getarg(11);
+	if (!.first[getarg(0)])
+		.first[getarg(0)] = .@n;
+	.last[getarg(0)] = .@n + 1;
+	.rows = .@n + 1;
+	return;
+
+OnInit:
+	// Duplicates share these variables; load them once.
+	if (.rows)
+		end;
+	setarray .board$[1], "1~39 Mission Board", "40~69 Mission Board", "70~99 Mission Board",
+		"100~110 Mission Board", "120~140 Mission Board", "Advanced Mission Board";
+	// Row 0 is a placeholder so that .first[] can use 0 for "unset".
+	callsub S_Row, 0, 0, 0, 0, "", "", "", 0, 0, 0, "", "";
+	// 1~39 Mission Board
+	callsub S_Row, 1, 21028, 21029, 1, "Payon Fields", "A Cushy Job", "Hunt 5 Willow", 800, 800, 0, "1068,3", "";
+	// [unverified] 21031: 5 Strawberries: Bahamut 2838486 only
+	callsub S_Row, 1, 21031, 21032, 15, "Payon Fields", "Pro Snake Hunter", "Hunt 5 Boa", 1600, 1400, 0, "", "578,5";
+	callsub S_Row, 1, 21034, 21035, 15, "Payon Fields", "That Onion Is Harmful", "Hunt 5 Wormtail", 1600, 1400, 0, "", "";
+	callsub S_Row, 1, 21037, 21038, 15, "Payon Fields", "Before It's All Mushrooms", "Hunt 10 Spore", 3000, 2000, 0, "", "";
+	callsub S_Row, 1, 21249, 21252, 10, "Prontera Fields", "Playground Cleanup: Hornets", "Hunt 10 Hornet", 1200, 1000, 0, "", "";
+	callsub S_Row, 1, 21250, 21253, 10, "Prontera Fields", "Playground Cleanup: Rockers", "Hunt 10 Rocker", 1600, 1400, 0, "", "";
+	callsub S_Row, 1, 21251, 21254, 10, "Prontera Fields", "The Legendary Knight Ambernite", "Hunt 10 Ambernite", 2000, 2000, 0, "", "";
+	callsub S_Row, 1, 21015, 21016, 15, "Payon Cave", "The Undead War", "Hunt 10 Zombie and 20 Skeleton", 3200, 3000, 0, "", "";
+	callsub S_Row, 1, 21222, 21223, 20, "Sograt Desert", "Noisy Ones", "Hunt 10 Peco Peco and 10 Muka", 4800, 4200, 0, "", "";
+	callsub S_Row, 1, 21411, 21410, 30, "Comodo Caves", "Barbie Q's Cooking Hell", "Hunt 10 Thara Frog", 5500, 5500, 0, "918,10", "";
+	callsub S_Row, 1, 21413, 21412, 30, "Comodo Caves", "Honey Skin for Bunny Q", "Hunt 10 Hydra", 5500, 5500, 0, "962,5", "";
+	callsub S_Row, 1, 21415, 21414, 30, "Comodo Caves", "Que Sera Cosera", "Hunt 10 Megalodon", 5500, 5500, 0, "", "";
+
+	// 40~69 Mission Board
+	callsub S_Row, 2, 21122, 21121, 40, "Shipwreck", "Rescue Your Friend", "Hunt 20 Pirate Skeleton", 8600, 9600, 0, "", "";
+	callsub S_Row, 2, 21127, 21126, 40, "Shipwreck", "Kukre Liver for Dinner", "Hunt 10 Kukre", 6500, 6500, 0, "", "";
+	callsub S_Row, 2, 21136, 21135, 40, "Shipwreck", "Clean Up the Wreck, 1F", "Hunt 10 Hydra", 9600, 8280, 0, "932,10,955,5,962,5", "";
+	// [unverified] 21138: kRO's 'Swift Pirate Skel' mapped to Swift Sailor Skeleton, treasure02's only champion
+	callsub S_Row, 2, 21138, 21137, 40, "Shipwreck", "Clean Up the Wreck, 2F", "Hunt 10 Whisper and 1 Swift Sailor Skeleton", 11800, 9600, 0, "", "";
+	callsub S_Row, 2, 21294, 21297, 40, "Hugel", "A Noble War", "Hunt 10 Aster and 10 Crab", 8400, 8380, 0, "", "";
+	callsub S_Row, 2, 21295, 21298, 40, "Hugel", "Clam Digging", "Hunt 10 Shellfish", 8400, 8380, 0, "966,5", "";
+	callsub S_Row, 2, 21256, 21257, 40, "Orc Village", "Round Up the Orcs", "Hunt 15 Orc Warrior, 15 Orc Lady and 10 Orc Baby", 23520, 24300, 0, "", "";
+	callsub S_Row, 2, 21258, 21259, 40, "Orc Village", "Those Wretched Orcs", "Hunt 20 Orc Skeleton and 20 Orc Zombie", 28700, 27400, 0, "", "";
+	callsub S_Row, 2, 21260, 21261, 40, "Orc Village", "Greedy Guts", "Hunt 20 Zenorc", 16000, 12000, 0, "", "";
+	// [unverified] 21262: axe and flail goblins taken as GOBLIN_3 and GOBLIN_2
+	callsub S_Row, 2, 21262, 21263, 40, "Orc Village", "Fierce Goblins", "Hunt 10 Goblin (Axe) and 10 Goblin (Flail)", 13000, 8200, 0, "", "";
+	// [unverified] 21264: hammer and dagger goblins taken as GOBLIN_4 and GOBLIN_1
+	callsub S_Row, 2, 21264, 21265, 40, "Orc Village", "Nimble Goblins", "Hunt 10 Goblin (Hammer) and 10 Goblin (Dagger)", 13000, 8600, 0, "", "";
+	// [unverified] 21269: morning star goblin taken as GOBLIN_5
+	callsub S_Row, 2, 21269, 21270, 50, "Orc Village", "A Troublesome Bunch", "Hunt 10 Goblin (Morning Star) and 10 Goblin Archer", 11800, 11900, 0, "", "";
+	callsub S_Row, 2, 21225, 21226, 40, "Izlude and Byalan", "Eggs and Grasshoppers", "Hunt 10 Peco Peco Egg and 10 Metaller", 8400, 8380, 0, "", "";
+	callsub S_Row, 2, 21228, 21229, 40, "Izlude and Byalan", "Sampling Is the Hard Part", "Hunt 10 Marina and 10 Plankton", 9600, 8380, 0, "1052,10", "";
+	callsub S_Row, 2, 21231, 21232, 40, "Izlude and Byalan", "Make Hay While the Sun Shines", "Hunt 10 Vadon", 7800, 8380, 0, "960,5", "";
+	callsub S_Row, 2, 21237, 21238, 50, "Izlude and Byalan", "For a Friend", "Hunt 10 Swordfish and 10 Marc", 12400, 14380, 0, "", "";
+	callsub S_Row, 2, 21239, 21240, 50, "Izlude and Byalan", "Cooking Supplies", "Hunt 20 Marse", 10640, 10240, 0, "1024,10", "";
+	callsub S_Row, 2, 21235, 21244, 50, "Izlude and Byalan", "The Woman of His Dreams", "Hunt 10 Obeaune", 9600, 9600, 0, "950,1", "";
+	callsub S_Row, 2, 21242, 21243, 50, "Izlude and Byalan", "Pesky Guards", "Hunt 10 Strouf and 10 Merman", 17200, 15600, 0, "", "";
+	callsub S_Row, 2, 21219, 21220, 40, "Morroc", "Mummies and the Blue Box", "Hunt 10 Mummy", 7200, 7800, 0, "934,1", "";
+	callsub S_Row, 2, 21202, 21203, 50, "Morroc", "In the Way", "Hunt 10 Sandman", 10800, 9600, 0, "1056,5", "";
+	callsub S_Row, 2, 21205, 21206, 50, "Morroc", "Can't Sleep", "Hunt 10 Verit and 10 Minorous", 12000, 12800, 0, "", "";
+	callsub S_Row, 2, 21213, 21214, 60, "Morroc", "Defeat Isis", "Hunt 20 Isis", 16740, 17880, 0, "", "";
+	callsub S_Row, 2, 21215, 21216, 60, "Morroc", "The Sphinx's Workers", "Hunt 15 Zerom and 15 Requiem", 19450, 20090, 0, "", "";
+	callsub S_Row, 2, 21217, 21218, 60, "Morroc", "The Sphinx's Secret", "Hunt 15 Marduk and 15 Pasana", 25640, 24210, 0, "25073,10", "";
+	callsub S_Row, 2, 21017, 21018, 50, "Payon Cave", "Soul Cleansing Ritual", "Hunt 15 Munak and 15 Bongun", 13200, 12300, 0, "609,15", "";
+	callsub S_Row, 2, 21021, 21022, 50, "Payon Cave", "Traces of Great Magic", "Hunt 12 Sohee", 10480, 12400, 0, "25188,3", "";
+	callsub S_Row, 2, 21103, 21102, 55, "Geffen Dungeon", "Hunter Fly Hunt", "Hunt 10 Hunter Fly", 8000, 6800, 0, "", "";
+	callsub S_Row, 2, 21106, 21105, 55, "Geffen Dungeon", "Ghoul and Jakk Hunt", "Hunt 10 Ghoul and 10 Jakk", 14800, 13660, 0, "", "";
+	callsub S_Row, 2, 21416, 21417, 60, "Comodo", "Cute Ones", "Hunt 10 Seal and 10 Sea Otter", 10000, 10000, 0, "", "";
+	callsub S_Row, 2, 21418, 21419, 60, "Comodo", "Hard Ones", "Hunt 10 Stalactic Golem, 5 Tri Joint and 5 Megalith", 20000, 20000, 0, "", "";
+	// [unverified] 21420: kRO's text says 15 Grove; twRO lists 10
+	callsub S_Row, 2, 21420, 21421, 60, "Comodo", "Creepy Ones", "Hunt 15 Grove and 10 Alligator", 15000, 15000, 0, "", "";
+
+	// 70~99 Mission Board
+	callsub S_Row, 3, 21280, 21281, 70, "Kiel Hyre Academy", "Academy Security", "Hunt 15 Harpy and 15 Sleeper", 36840, 40200, 0, "", "";
+	callsub S_Row, 3, 21282, 21283, 70, "Kiel Hyre Academy", "A Groundbreaking Business Idea", "", 14200, 14200, 0, "7107,10,7101,10", "";
+	callsub S_Row, 3, 21284, 21285, 70, "Kiel Hyre Academy", "A Proper Finish", "Hunt 20 Goat and 20 Grand Peco", 42960, 43880, 0, "", "";
+	callsub S_Row, 3, 21277, 21278, 70, "Kiel Hyre Academy", "Border Checkpoint Duty", "Hunt 10 Geographer and 10 Mantis", 19760, 15150, 0, "", "";
+	callsub S_Row, 3, 21286, 21287, 70, "Clock Tower", "Clock Tower 1F Cleanup", "Hunt 20 Rideword and 15 Punk", 33820, 40650, 0, "", "";
+	// [unverified] 21288: Clock Tower keys: Bahamut 2838486 only
+	callsub S_Row, 3, 21288, 21289, 80, "Clock Tower", "Living Clocks 1", "Hunt 15 Clock", 20310, 17370, 0, "", "7026,1,7027,1";
+	// [unverified] 21290: Clock Tower keys: Bahamut 2838486 only
+	callsub S_Row, 3, 21290, 21291, 80, "Clock Tower", "Living Clocks 2", "Hunt 20 Alarm", 28320, 27960, 0, "", "7026,1,7027,1";
+	// [unverified] 21292: Clock Tower keys: Bahamut 2838486 only
+	callsub S_Row, 3, 21292, 21293, 80, "Clock Tower", "Laughter from Below", "Hunt 20 Bathory", 25720, 27280, 0, "", "7026,1,7027,1";
+	callsub S_Row, 3, 21272, 21273, 70, "Glast Heim", "Purify the Monastery", "Hunt 15 Wraith and 15 Evil Druid", 37640, 37050, 0, "", "";
+	callsub S_Row, 3, 21040, 21041, 85, "Glast Heim", "Prisoners Dreaming of Escape", "Hunt 10 Zombie Prisoner and 10 Skeleton Prisoner", 72000, 72000, 0, "", "";
+	callsub S_Row, 3, 21044, 21045, 85, "Glast Heim", "Refined Tastes", "Hunt 20 Injustice", 72000, 72000, 0, "", "";
+	// [unverified] 21274: job EXP: Bahamut 91,630, ntome 97,630
+	callsub S_Row, 3, 21274, 21275, 90, "Glast Heim", "Calm the Catacombs", "Hunt 10 Dark Priest and 1 Furious Dark Priest", 96220, 91630, 0, "", "";
+	callsub S_Row, 3, 21042, 21043, 90, "Glast Heim", "The Vicious Torturer", "Hunt 10 Rybio", 72000, 72000, 0, "", "";
+	callsub S_Row, 3, 21115, 21114, 75, "Geffen", "Cute Sky Petites", "Hunt 10 Sky Petite", 9900, 10120, 0, "", "";
+	callsub S_Row, 3, 21118, 21117, 75, "Geffen", "Cute Earth Petites", "Hunt 10 Earth Petite", 12860, 13160, 0, "", "";
+	callsub S_Row, 3, 21109, 21108, 80, "Geffen", "Marionette and Deviruchi Hunt", "Hunt 10 Marionette and 10 Deviruchi", 37520, 41740, 0, "", "";
+	callsub S_Row, 3, 21112, 21111, 80, "Geffen", "The Horse That Runs in Nightmares", "Hunt 10 Nightmare", 42000, 38000, 0, "", "";
+	callsub S_Row, 3, 21302, 21303, 80, "Einbroch and Einbech", "Tidy Up Around Here", "Hunt 20 Metaling and 10 Holden", 40920, 38220, 0, "", "";
+	callsub S_Row, 3, 21312, 21313, 80, "Einbroch and Einbech", "Floating Toxic Gas 1", "Hunt 20 Venomous", 38200, 33440, 0, "", "";
+	callsub S_Row, 3, 21314, 21315, 80, "Einbroch and Einbech", "Floating Toxic Gas 2", "Hunt 20 Noxious", 39200, 35680, 0, "", "";
+	callsub S_Row, 3, 21316, 21317, 80, "Einbroch and Einbech", "Cute and Creepy", "Hunt 15 Teddy Bear", 48600, 51420, 0, "", "";
+	callsub S_Row, 3, 21305, 21306, 85, "Einbroch and Einbech", "Shadow Miners", "Hunt 20 Pitman", 77500, 69780, 0, "", "";
+	callsub S_Row, 3, 21307, 21308, 85, "Einbroch and Einbech", "Why Does That Thing Move?!", "Hunt 15 Old Stove", 72040, 71084, 0, "", "";
+	callsub S_Row, 3, 21309, 21310, 85, "Einbroch and Einbech", "Jumping Minerals", "Hunt 15 Mineral and 5 Obsidian", 72530, 89290, 0, "", "";
+	callsub S_Row, 3, 21319, 21320, 80, "Lighthalzen", "A Pool That Big, and Still?!", "Hunt 20 Rafflesia", 51440, 52640, 0, "", "";
+	callsub S_Row, 3, 21321, 21322, 80, "Lighthalzen", "Slapping at the Ankles", "Hunt 20 Stem Worm", 49890, 53416, 0, "", "";
+	callsub S_Row, 3, 21323, 21324, 80, "Lighthalzen", "The Valley of the Reaper", "Hunt 20 Breeze", 84392, 79024, 0, "", "";
+	callsub S_Row, 3, 21151, 21150, 90, "Turtle Island", "Touring Turtle Island", "Hunt 10 Dragon Tail and 10 Spring Rabbit", 76000, 72000, 0, "", "";
+	// [unverified] 21153: twRO lists one quest for all four turtles; kRO splits it into 21153 and 21155, which this script hands out and pays together
+	callsub S_Row, 3, 21153, 21156, 90, "Turtle Island", "Clear the Turtle Swarm", "Hunt 10 Solider, 10 Permeter, 10 Freezer and 10 Heater", 102000, 104000, 0, "", "";
+	.q_id2[.rows - 1] = 21155;	// given and paid together with 21153
+	callsub S_Row, 3, 21160, 21159, 90, "Turtle Island", "Assaulter Hunt", "Hunt 10 Assaulter", 52000, 67000, 0, "", "";
+	callsub S_Row, 3, 21055, 21056, 70, "Foreign Lands", "The Temple Lion", "Hunt 20 Tamruan", 30000, 30000, 0, "", "";
+	callsub S_Row, 3, 21057, 21058, 70, "Foreign Lands", "The Bird with a Rainbow", "Hunt 20 Toucan", 30000, 30000, 0, "", "";
+	callsub S_Row, 3, 21053, 21054, 80, "Foreign Lands", "The Headless Mule", "Hunt 20 Headless Mule", 35000, 35000, 0, "", "";
+	callsub S_Row, 3, 21047, 21048, 80, "Foreign Lands", "Moscovia's Nightmare", "Hunt 20 Kikimora", 42660, 43600, 0, "", "";
+	callsub S_Row, 3, 21059, 21060, 80, "Foreign Lands", "Broom, Cauldron and Grandma", "Hunt 20 Baba-Yaga", 45700, 46700, 0, "", "";
+	callsub S_Row, 3, 21051, 21052, 80, "Foreign Lands", "A Rice Cake Made of Sand?", "Hunt 20 Mi Gao", 39600, 35000, 0, "", "";
+	// [unverified] 21065: kRO's second target taken as Zhu Po Long
+	callsub S_Row, 3, 21065, 21066, 80, "Foreign Lands", "The Tomb Where Secrets Sleep", "Hunt 15 Yao Jun and 15 Zhu Po Long", 72000, 72000, 0, "", "";
+	callsub S_Row, 3, 21049, 21050, 80, "Foreign Lands", "A Beautiful Doll", "Hunt 20 Miyabi Doll", 36800, 40100, 0, "", "";
+	callsub S_Row, 3, 21061, 21062, 80, "Foreign Lands", "The Fallen, the Victor and the Rest", "Hunt 20 Firelock Soldier", 47500, 48300, 0, "", "";
+	callsub S_Row, 3, 21067, 21068, 90, "Foreign Lands", "The Walls Have Ears", "Hunt 20 Shinobi", 81120, 72200, 0, "", "";
+	callsub S_Row, 3, 21063, 21064, 90, "Foreign Lands", "The Celestial Maiden", "Hunt 20 Evil Nymph", 76600, 83700, 0, "", "";
+	callsub S_Row, 3, 21069, 21070, 90, "Foreign Lands", "Sun Wukong Hopefuls", "Hunt 20 Enchanted Peach Tree", 63000, 71900, 0, "", "";
+	callsub S_Row, 3, 21071, 21072, 90, "Foreign Lands", "The Old Man Above the Clouds", "Hunt 20 Taoist Hermit", 72000, 72000, 0, "", "";
+	callsub S_Row, 3, 21296, 21299, 80, "Rachel, Veins and Hugel", "Behind the Broken Water Pipes", "Hunt 10 Yellow Novus and 10 Red Novus", 43080, 40160, 0, "", "";
+	callsub S_Row, 3, 21142, 21141, 90, "Rachel, Veins and Hugel", "A Peaceful Pilgrimage", "Hunt 30 Roween", 86000, 82000, 0, "", "";
+	callsub S_Row, 3, 21145, 21144, 90, "Rachel, Veins and Hugel", "Guardian of Beauty", "Hunt 30 Siroma", 92000, 82000, 0, "", "";
+	callsub S_Row, 3, 21148, 21147, 90, "Rachel, Veins and Hugel", "Stones That Swallow Stones", "Hunt 30 Stapo", 86000, 82000, 0, "", "";
+
+	// 100~110 Mission Board
+	callsub S_Row, 4, 21629, 21630, 100, "Nogg Road", "Catch Nightmare Terrors", "Hunt 30 Nightmare Terror", 160000, 160000, 1, "", "";
+	callsub S_Row, 4, 21632, 21633, 100, "Nogg Road", "Catch Deleters", "Hunt 30 Sky Deleter and 30 Earth Deleter", 160000, 160000, 2, "", "";
+	callsub S_Row, 4, 21635, 21636, 100, "Nogg Road", "Collect Hardened Lava", "", 160000, 160000, 1, "7096,10", "";
+	callsub S_Row, 4, 21683, 21684, 100, "Glast Heim", "The Pitiful Clown", "Hunt 30 Carat", 160000, 160000, 1, "", "";
+	callsub S_Row, 4, 21686, 21687, 100, "Glast Heim", "One Little Bug", "Hunt 30 Arclouze", 160000, 160000, 1, "", "";
+	callsub S_Row, 4, 21689, 21690, 100, "Glast Heim", "To Heaven, If Still Alive", "Hunt 30 Anolian", 200000, 200000, 1, "", "";
+	callsub S_Row, 4, 21692, 21693, 100, "Glast Heim", "Have No Doubt", "Hunt 30 Sting", 200000, 200000, 1, "", "";
+	callsub S_Row, 4, 21695, 21696, 100, "Glast Heim", "A Tasty... Er, Pitiful Soul", "Hunt 30 Majoruros", 260000, 260000, 1, "", "";
+	callsub S_Row, 4, 21698, 21699, 110, "Glast Heim", "Nothing but Empty Armor", "Hunt 30 Raydric", 300000, 300000, 1, "", "";
+	callsub S_Row, 4, 21701, 21702, 110, "Glast Heim", "Perhaps an Upright Soul", "Hunt 30 Khalitzburg", 300000, 300000, 1, "", "";
+	callsub S_Row, 4, 21704, 21705, 110, "Glast Heim", "Bane of Knights", "Hunt 30 Wanderer", 300000, 300000, 1, "", "";
+	callsub S_Row, 4, 21707, 21708, 110, "Glast Heim", "A Worthy Opponent", "Hunt 10 Abysmal Knight", 300000, 300000, 1, "", "";
+	callsub S_Row, 4, 21713, 21714, 100, "New World", "The Girl Draped in Leaves", "Hunt 30 Pinguicula", 160000, 160000, 1, "", "";
+	callsub S_Row, 4, 21716, 21717, 100, "New World", "Electrifying Beauty", "Hunt 30 Luciola Vespa", 200000, 200000, 1, "", "";
+	callsub S_Row, 4, 21719, 21720, 100, "New World", "King of the Other World", "Hunt 1 Tendrillion", 260000, 260000, 1, "", "";
+	callsub S_Row, 4, 21722, 21723, 110, "New World", "The Lady Draped in Leaves", "Hunt 30 Dark Pinguicula", 300000, 300000, 1, "", "";
+	callsub S_Row, 4, 21725, 21726, 110, "New World", "Pressed Flower Bookmarks", "Hunt 30 Nepenthes", 300000, 300000, 1, "", "";
+	callsub S_Row, 4, 21728, 21729, 110, "New World", "Nice... Muscles!", "Hunt 30 Naga", 300000, 300000, 1, "", "";
+	callsub S_Row, 4, 21731, 21732, 110, "New World", "Straight Out of a Fairy Tale", "Hunt 30 Cornus", 300000, 300000, 1, "", "";
+	callsub S_Row, 4, 21734, 21735, 110, "New World", "A Stimulating Charm", "Hunt 20 Centipede Larva", 300000, 300000, 1, "", "";
+	callsub S_Row, 4, 21737, 21738, 110, "New World", "Horns Full of Mana", "", 300000, 300000, 1, "6023,20", "";
+	callsub S_Row, 4, 21375, 21376, 100, "Rachel and Veins", "Grassland Brawl: Kobolds", "Hunt 20 Kobold (Axe), 20 Kobold (Hammer) and 20 Kobold (Mace)", 250000, 250000, 2, "", "";
+	callsub S_Row, 4, 21377, 21378, 100, "Rachel and Veins", "Grassland Brawl: Hill Wind", "Hunt 30 Hill Wind", 150000, 150000, 1, "", "";
+	callsub S_Row, 4, 21385, 21386, 100, "Rachel and Veins", "Grassland Brawl: Desert Wolves", "Hunt 30 Desert Wolf", 150000, 150000, 1, "", "";
+	callsub S_Row, 4, 21379, 21380, 100, "Rachel and Veins", "Never Any Dog Hair When You Need It", "", 100000, 100000, 1, "1034,20", "";
+	callsub S_Row, 4, 21381, 21382, 100, "Rachel and Veins", "The Weed War", "Hunt 30 Muscipular and 30 Drosera", 300000, 300000, 2, "", "";
+	callsub S_Row, 4, 21383, 21384, 100, "Rachel and Veins", "Volcanic Mutants", "Hunt 30 Magmaring", 150000, 150000, 1, "", "";
+	callsub S_Row, 4, 21387, 21388, 100, "Rachel and Veins", "Cold Heart, Cool Dish", "", 100000, 100000, 1, "7561,20", "";
+	callsub S_Row, 4, 21389, 21390, 100, "Rachel and Veins", "The Yeti Who Won't Listen", "Hunt 30 Snowier", 150000, 150000, 1, "", "";
+	callsub S_Row, 4, 21391, 21392, 100, "Rachel and Veins", "How Hard Is an Ice Crystal?", "Hunt 30 Ice Titan and 10 Gazeti", 300000, 300000, 1, "", "";
+	callsub S_Row, 4, 21651, 21652, 110, "Thanatos Tower", "Inside the Mimic's Box", "Hunt 30 Ancient Mimic", 400000, 400000, 1, "", "";
+	callsub S_Row, 4, 21654, 21655, 110, "Thanatos Tower", "Old Wisdom Adrift", "Hunt 30 Death Word", 400000, 400000, 1, "", "";
+	callsub S_Row, 4, 21657, 21658, 110, "Thanatos Tower", "The Baron of the Old Castle", "Hunt 20 Owl Baron", 500000, 500000, 1, "", "";
+	callsub S_Row, 4, 21660, 21661, 110, "Thanatos Tower", "Loose Pages of Knowledge", "", 400000, 400000, 1, "7449,10", "";
+	callsub S_Row, 4, 21663, 21664, 110, "Thanatos Tower", "Records of Old Magic", "", 400000, 400000, 1, "7099,10", "";
+	callsub S_Row, 4, 21666, 21667, 110, "Thanatos Tower", "Recycling Drive", "", 400000, 400000, 1, "7071,30", "";
+	// [unverified] 21351: kRO's purple and green Venatu taken as VENATU_1 and VENATU_2
+	callsub S_Row, 4, 21351, 21352, 110, "Juperos", "Swarm of Iron Ants 1", "Hunt 20 Venatu (Purple) and 20 Venatu (Green)", 300000, 250000, 1, "", "";
+	// [unverified] 21353: kRO's orange and blue Venatu taken as VENATU_3 and VENATU_4
+	callsub S_Row, 4, 21353, 21354, 110, "Juperos", "Swarm of Iron Ants 2", "Hunt 20 Venatu (Orange) and 20 Venatu (Blue)", 300000, 250000, 1, "", "";
+	// [unverified] 21355: kRO's green and blue Dimik taken as DIMIK_1 and DIMIK_2
+	callsub S_Row, 4, 21355, 21356, 110, "Juperos", "Colorful Dimiks 1", "Hunt 10 Dimik (Green) and 10 Dimik (Blue)", 300000, 250000, 1, "", "";
+	// [unverified] 21357: kRO's orange and red Dimik taken as DIMIK_3 and DIMIK_4
+	callsub S_Row, 4, 21357, 21358, 110, "Juperos", "Colorful Dimiks 2", "Hunt 10 Dimik (Orange) and 10 Dimik (Red)", 300000, 250000, 1, "", "";
+
+	// 120~140 Mission Board
+	callsub S_Row, 5, 21582, 21583, 120, "Odin Temple", "Take Out the Radio Operators First", "Hunt 20 Skogul", 600000, 600000, 1, "", "";
+	callsub S_Row, 5, 21585, 21586, 120, "Odin Temple", "Purify the Demons", "Hunt 20 Frus", 600000, 600000, 1, "", "";
+	callsub S_Row, 5, 21588, 21589, 120, "Odin Temple", "Before You're Bewitched", "Hunt 5 Skeggiold (Brown) and 5 Skeggiold (Blue)", 600000, 600000, 2, "", "";
+	callsub S_Row, 5, 21640, 21641, 120, "Abyss Lake", "Dragons of the Lake", "Hunt 30 Red Ferus and 30 Green Ferus", 500000, 500000, 2, "", "";
+	callsub S_Row, 5, 21643, 21644, 120, "Abyss Lake", "Wyverns of the Lake", "Hunt 30 Yellow Acidus and 30 Blue Acidus", 500000, 500000, 2, "", "";
+	callsub S_Row, 5, 21646, 21647, 120, "Abyss Lake", "The Lake's Three-Headed Dragon", "Hunt 1 Hydrolancer", 500000, 500000, 1, "", "";
+	callsub S_Row, 5, 21669, 21670, 120, "Thanatos Tower", "Watch and Punish", "Hunt 30 Baroness of Retribution", 600000, 600000, 1, "", "";
+	callsub S_Row, 5, 21672, 21673, 120, "Thanatos Tower", "Sweet Poison", "Hunt 30 Lady Solace", 600000, 600000, 1, "", "";
+	callsub S_Row, 5, 21675, 21676, 120, "Thanatos Tower", "Rest Through Death", "Hunt 30 Mistress of Shelter", 600000, 600000, 1, "", "";
+	callsub S_Row, 5, 21678, 21679, 120, "Thanatos Tower", "Seeds of Control", "Hunt 30 Dame of Sentinel", 600000, 600000, 1, "", "";
+	// [unverified] 21740: kRO's text says 20 Centipede; hazyforest says 30
+	callsub S_Row, 5, 21740, 21741, 120, "New World", "Venomous Bugs", "Hunt 20 Centipede", 600000, 600000, 1, "", "";
+	// [unverified] 21743: kRO's text says 20 Tatacho; hazyforest says 30
+	callsub S_Row, 5, 21743, 21744, 120, "New World", "The Useless Slacker", "Hunt 20 Tatacho", 600000, 600000, 1, "", "";
+	callsub S_Row, 5, 21746, 21747, 130, "New World", "Looks Are Only a Shell", "Hunt 30 Dolomedes", 800000, 800000, 1, "", "";
+	callsub S_Row, 5, 21749, 21750, 130, "New World", "Snap the Single Horn", "Hunt 30 One-Horned Scaraba", 800000, 800000, 1, "", "";
+	callsub S_Row, 5, 21752, 21753, 130, "New World", "Crack the Twin Horns", "Hunt 30 Two-Horned Scaraba", 800000, 800000, 1, "", "";
+	callsub S_Row, 5, 21755, 21756, 130, "New World", "Crunch the Antlers", "Hunt 30 Antler Scaraba", 800000, 800000, 1, "", "";
+	callsub S_Row, 5, 21758, 21759, 130, "New World", "Break the Rake Horns", "Hunt 30 Rake Scaraba", 800000, 800000, 1, "", "";
+	callsub S_Row, 5, 21761, 21762, 140, "New World", "Morroc's Torment", "Hunt 15 Fire Condor and 15 Fire Frilldora", 1000000, 1000000, 1, "", "";
+	callsub S_Row, 5, 21764, 21765, 140, "New World", "Morroc's Trickery", "Hunt 15 Fire Sandman and 15 Fire Golem", 1000000, 1000000, 1, "", "";
+	callsub S_Row, 5, 21363, 21364, 120, "Nameless Island", "Cleansing the Nameless Island", "Hunt 30 Ragged Zombie and 30 Zombie Slaughter", 1000000, 600000, 2, "", "";
+	callsub S_Row, 5, 21365, 21366, 120, "Nameless Island", "Crying and Crying Again", "Hunt 30 Banshee", 500000, 300000, 1, "", "";
+	callsub S_Row, 5, 21367, 21368, 120, "Nameless Island", "Master of Dead Marionettes", "Hunt 20 Necromancer", 600000, 500000, 1, "", "";
+	callsub S_Row, 5, 21369, 21370, 120, "Rachel Sanctuary", "Purify the West Sanctuary", "Hunt 20 Vanberk and 20 Isilla", 500000, 500000, 1, "", "";
+	callsub S_Row, 5, 21371, 21372, 120, "Rachel Sanctuary", "Purify the East Sanctuary", "Hunt 30 Hodremlin", 500000, 500000, 1, "", "";
+	callsub S_Row, 5, 21373, 21374, 120, "Rachel Sanctuary", "Purify the South Sanctuary", "Hunt 20 Agav and 20 Echio", 500000, 500000, 1, "", "";
+	callsub S_Row, 5, 21592, 21593, 130, "Bio Lab", "Egnigem Cenia", "Hunt 30 Egnigem Cenia", 850000, 850000, 1, "", "";
+	callsub S_Row, 5, 21595, 21596, 130, "Bio Lab", "Armeyer Dinze", "Hunt 30 Armeyer Dinze", 850000, 850000, 1, "", "";
+	callsub S_Row, 5, 21598, 21599, 130, "Bio Lab", "Wickebine Tres", "Hunt 30 Wickebine Tres", 850000, 850000, 1, "", "";
+	callsub S_Row, 5, 21601, 21602, 130, "Bio Lab", "Kavach Icarus", "Hunt 30 Kavach Icarus", 850000, 850000, 1, "", "";
+	callsub S_Row, 5, 21604, 21605, 130, "Bio Lab", "Errende Ebecee", "Hunt 30 Errende Ebecee", 850000, 850000, 1, "", "";
+	callsub S_Row, 5, 21607, 21608, 130, "Bio Lab", "Laurell Weinder", "Hunt 30 Laurell Weinder", 850000, 850000, 1, "", "";
+	callsub S_Row, 5, 21610, 21611, 140, "Bio Lab", "Cecil Damon", "Hunt 2 Cecil Damon", 1000000, 1000000, 1, "", "";
+	callsub S_Row, 5, 21613, 21614, 140, "Bio Lab", "Kathryne Keyron", "Hunt 2 Kathryne Keyron", 1000000, 1000000, 1, "", "";
+	callsub S_Row, 5, 21616, 21617, 140, "Bio Lab", "Margaretha Sorin", "Hunt 2 Margaretha Sorin", 1000000, 1000000, 1, "", "";
+	callsub S_Row, 5, 21619, 21620, 140, "Bio Lab", "Seyren Windsor", "Hunt 2 Seyren Windsor", 1000000, 1000000, 1, "", "";
+	callsub S_Row, 5, 21622, 21623, 140, "Bio Lab", "Eremes Guile", "Hunt 2 Eremes Guile", 1000000, 1000000, 1, "", "";
+	callsub S_Row, 5, 21625, 21626, 140, "Bio Lab", "Howard Alt-Eisen", "Hunt 2 Howard Alt-Eisen", 1000000, 1000000, 1, "", "";
+	callsub S_Row, 5, 21774, 21775, 130, "Dimensional Crack", "The Angel's Form", "Hunt 30 Incarnation of Morocc (Valkyrie)", 800000, 800000, 1, "", "";
+	callsub S_Row, 5, 21777, 21778, 130, "Dimensional Crack", "Blessing of Rest", "Hunt 30 Incarnation of Morocc (Mud)", 800000, 800000, 1, "", "";
+	callsub S_Row, 5, 21780, 21781, 130, "Dimensional Crack", "The Joy of Servitude", "Hunt 30 Incarnation of Morocc (Exorcist)", 800000, 800000, 1, "", "";
+	callsub S_Row, 5, 21783, 21784, 130, "Dimensional Crack", "Purity Made Flesh", "Hunt 30 Incarnation of Morocc (Ghost)", 800000, 800000, 1, "", "";
+	callsub S_Row, 5, 21393, 21394, 120, "Geffenia", "Nightmare Research", "Hunt 5 Incubus and 5 Succubus", 400000, 400000, 1, "", "";
+	callsub S_Row, 5, 21767, 21768, 130, "Bifrost", "The Fluffy Little One", "Hunt 20 Miming", 850000, 850000, 1, "", "";
+	callsub S_Row, 5, 21770, 21771, 130, "Bifrost", "The Little Prankster", "Hunt 20 Little Fatum", 850000, 850000, 1, "", "";
+
+	// Advanced Mission Board
+	callsub S_Row, 6, 19000, 19001, 130, "Lv130", "The Land Where Flowers Bloomed", "Hunt 60 monsters in The Land Where Flowers Bloomed", 1042488, 2760588, 2, "", "";
+	callsub S_Row, 6, 19002, 19003, 130, "Lv130", "Grand Bath Meditatio", "Hunt 60 monsters in Grand Bath Meditatio", 1163508, 814463, 2, "", "";
+	callsub S_Row, 6, 19004, 19005, 130, "Lv130", "Library: Corridor of Memories", "Hunt 60 monsters in Library: Corridor of Memories", 1700618, 1190430, 2, "", "";
+	callsub S_Row, 6, 19006, 19007, 130, "Lv130", "Sewage Treatment Plant", "Hunt 60 monsters in Sewage Treatment Plant", 1685862, 1180080, 2, "", "";
+	callsub S_Row, 6, 19008, 19009, 130, "Lv130", "First Power Plant", "Hunt 60 monsters in First Power Plant", 1845139, 1291584, 2, "", "";
+	callsub S_Row, 6, 19010, 19011, 130, "Lv130", "Dragon's Nest, 2F", "Hunt 60 monsters in Dragon's Nest, 2F", 1110729, 1413414, 2, "", "";
+	callsub S_Row, 6, 19012, 19013, 140, "Lv140", "Bifrost Tower", "Hunt 30 Cenere and 30 Antique Book", 2940165, 3741390, 2, "", "";
+	callsub S_Row, 6, 19014, 19015, 140, "Lv140", "Dragon's Nest, 3F", "Hunt 120 monsters in Dragon's Nest, 3F", 3892320, 4530780, 2, "", "";
+	callsub S_Row, 6, 19016, 19017, 140, "Lv140", "Prontera Underground Prison", "Hunt 120 monsters in Prontera Underground Prison", 3024000, 3024000, 2, "", "";
+	callsub S_Row, 6, 19018, 19019, 140, "Lv140", "Invaded Prontera", "Hunt 120 Hunter Fly in Invaded Prontera", 3584280, 2409120, 2, "", "";
+	callsub S_Row, 6, 19020, 19021, 140, "Lv140", "Rock Ridge Mine", "Hunt 120 monsters in Rock Ridge Mine", 3154932, 3178296, 2, "", "";
+	callsub S_Row, 6, 19022, 19023, 150, "Lv150", "Second Floor Corridor", "Hunt 30 Wanderer (Nightmare)", 6092805, 17482113, 2, "", "";
+	// [unverified] 19024: kRO's client names the target Smelly Ghoul; the spec says Smelly Zombie
+	callsub S_Row, 6, 19024, 19025, 150, "Lv150", "Underground Bunker", "Hunt 30 Smelly Ghoul", 1258659, 1303554, 2, "", "";
+	callsub S_Row, 6, 19026, 19027, 150, "Lv150", "Lab Building OPTATIO", "Hunt 20 Repair Robot Turbo and 30 Green Cenere", 1145250, 1154700, 2, "", "";
+	callsub S_Row, 6, 19028, 19029, 150, "Lv150", "Twisted Clock Tower, 2F", "Hunt 40 Big Ben and 40 Neo Punk", 1971508, 2016352, 3, "", "";
+	// [unverified] 19030: 160 kills per twRO and hazyforest; thRO lists 120
+	callsub S_Row, 6, 19030, 19031, 150, "Lv150", "Breeding Ground: Lost Valley", "Hunt 160 monsters in Breeding Ground: Lost Valley", 25429197, 17800499, 3, "", "";
+	callsub S_Row, 6, 19032, 19033, 160, "Lv160", "Twisted Clock Tower, 3F", "Hunt 50 Big Bell", 7513000, 8457500, 2, "", "";
+	callsub S_Row, 6, 19034, 19035, 160, "Lv160", "Oz Canyon and the Ida Plains", "Hunt 40 Ashen Goat and 40 Baby Gray Wolf", 13866768, 9706824, 3, "", "";
+	callsub S_Row, 6, 19036, 19037, 160, "Lv160", "Ludus Disposal Site, 2F", "Hunt 80 monsters in Ludus Disposal Site, 2F", 13603464, 9522360, 3, "", "";
+	callsub S_Row, 6, 19038, 19039, 160, "Lv160", "East Juperos Ruins", "Hunt 50 Recon Robot", 21257100, 14880024, 2, "", "";
+	callsub S_Row, 6, 19040, 19041, 160, "Lv160", "Verus City", "Hunt 40 Exploration Rover and 40 Explorer Robot Turbo", 12216160, 16305872, 3, "", "";
+	callsub S_Row, 6, 19042, 19043, 170, "Lv170", "Tartarus Storage, Upper Level", "Hunt 160 monsters in Tartarus Storage, Upper Level", 44954533, 31468133, 3, "", "";
+	callsub S_Row, 6, 19044, 19045, 170, "Lv170", "Oz Labyrinth, 1F", "Hunt 80 monsters in Oz Labyrinth, 1F", 28732040, 20112390, 3, "", "";
+	callsub S_Row, 6, 19046, 19047, 170, "Lv170", "Ludus Disposal Site, 3F", "Hunt 160 monsters in Ludus Disposal Site, 3F", 30639280, 21447552, 3, "", "";
+	callsub S_Row, 6, 19048, 19049, 175, "Lv175", "Nogg Road, 3F", "Hunt 160 monsters in Nogg Road, 3F", 43520973, 30464573, 3, "", "";
+	callsub S_Row, 6, 19050, 19051, 180, "Lv180", "Tartarus Storage, Lower Level", "Hunt 160 monsters in Tartarus Storage, Lower Level", 33749488, 23624560, 3, "", "";
+	callsub S_Row, 6, 19052, 19053, 180, "Lv180", "Glast Heim Abyss, 1F", "Hunt 160 monsters in Glast Heim Abyss, 1F", 35686094, 24863418, 3, "", "";
+	callsub S_Row, 6, 19054, 19055, 180, "Lv180", "Grey Wolf Forest (West)", "Hunt 80 monsters in Grey Wolf Forest (West)", 26550614, 18585440, 3, "", "";
+	callsub S_Row, 6, 19056, 19057, 180, "Lv180", "Grey Wolf Forest (East)", "Hunt 80 monsters in Grey Wolf Forest (East)", 26878720, 18815104, 3, "", "";
+	callsub S_Row, 6, 19058, 19059, 180, "Lv180", "Einbech Mine, 3F", "Hunt 160 monsters in Einbech Mine, 3F", 93011586, 65108094, 3, "", "";
+	callsub S_Row, 6, 19060, 19061, 190, "Lv190", "Ancient Odin Temple", "Hunt 240 monsters in Ancient Odin Temple", 98882731, 69217943, 4, "", "";
+	callsub S_Row, 6, 19062, 19063, 190, "Lv190", "Abyss Lake Underground Cave, 4F", "Hunt 240 monsters in Abyss Lake Underground Cave, 4F", 79912332, 55938546, 4, "", "";
+	callsub S_Row, 6, 19064, 19065, 190, "Lv190", "Second Power Plant", "Hunt 240 monsters in Second Power Plant", 63975339, 44782794, 4, "", "";
+	end;
+}
+
+// Board 1-6, first set by the entrance, second set in the old
+// 100-140 mission room. kRO's navigation table has six boards in each
+// room; which board stands where is [unverified].
+moc_para01,34,38,3	duplicate(Eden Mission Board#edmb)	1~39 Mission Board#edmb1a	857
+moc_para01,36,38,3	duplicate(Eden Mission Board#edmb)	40~69 Mission Board#edmb2a	857
+moc_para01,38,38,3	duplicate(Eden Mission Board#edmb)	70~99 Mission Board#edmb3a	857
+moc_para01,40,38,3	duplicate(Eden Mission Board#edmb)	100~110 Mission Board#edmb4a	857
+moc_para01,42,38,3	duplicate(Eden Mission Board#edmb)	120~140 Mission Board#edmb5a	857
+moc_para01,44,38,3	duplicate(Eden Mission Board#edmb)	Advanced Mission Board#edmb6a	857
+moc_para01,25,98,3	duplicate(Eden Mission Board#edmb)	1~39 Mission Board#edmb1b	857
+moc_para01,27,98,3	duplicate(Eden Mission Board#edmb)	40~69 Mission Board#edmb2b	857
+moc_para01,29,98,3	duplicate(Eden Mission Board#edmb)	70~99 Mission Board#edmb3b	857
+moc_para01,31,98,3	duplicate(Eden Mission Board#edmb)	100~110 Mission Board#edmb4b	857
+moc_para01,33,98,3	duplicate(Eden Mission Board#edmb)	120~140 Mission Board#edmb5b	857
+moc_para01,35,98,3	duplicate(Eden Mission Board#edmb)	Advanced Mission Board#edmb6b	857
+
+// Item deliveries: 30 of one loot item for base EXP, once an hour each.
+// Sprite [unverified].
+-	script	Logistics Officer#edmb	-1,{
+	if (!getextension("eden_rework_2021"))
+		end;
+	mes "[Logistics Officer]";
+	if (!callfunc("F_HasEdenGroupMark")) {
+		mes "Deliveries are for Eden Group members. Talk to Secretary Lime Evenor if you'd like to join.";
+		close;
+	}
+	mes "Eden Group runs on supplies. Bring me 30 of something I need and I'll make it worth your while.";
+	mes "Each delivery can be made once an hour.";
+	next;
+	.@menu$ = "";
+	for (.@i = 0; .@i < getarraysize(.c_item); ++.@i) {
+		.@t = checkquest(.c_cd[.@i], PLAYTIME);
+		if (.@t == 2) {
+			erasequest .c_cd[.@i];
+			.@t = -1;
+		}
+		.@what$ = "30 " + getitemname(.c_item[.@i]);
+		if (BaseLevel < .c_lv[.@i])
+			.@menu$ += "^999999[Lv" + .c_lv[.@i] + "] " + .@what$ + "^000000:";
+		else if (.@t >= 0)
+			.@menu$ += "^999999[Done] " + .@what$ + "^000000:";
+		else
+			.@menu$ += "[Lv" + .c_lv[.@i] + "] " + .@what$ + ":";
+	}
+	.@i = select(.@menu$ + "Never mind") - 1;
+	if (.@i == getarraysize(.c_item))
+		close;
+	mes "[Logistics Officer]";
+	if (BaseLevel < .c_lv[.@i]) {
+		mes "That delivery is for members of base level " + .c_lv[.@i] + " and up.";
+		close;
+	}
+	if (checkquest(.c_cd[.@i], PLAYTIME) >= 0) {
+		mes "You've already brought me those this hour. Come back a little later.";
+		close;
+	}
+	if (countitem(.c_item[.@i]) < 30) {
+		mes "I need ^0000FF30 " + getitemname(.c_item[.@i]) + "^000000. You don't have enough yet.";
+		close;
+	}
+	delitem .c_item[.@i], 30;
+	setquest .c_cd[.@i];
+	getexp .c_exp[.@i], 0;
+	mes "That's exactly what we needed. Thank you!";
+	close;
+
+OnInit:
+	if (getarraysize(.c_item))
+		end;
+	setarray .c_lv[0], 1; setarray .c_cd[0], 21441; setarray .c_item[0], 914; setarray .c_exp[0], 5000;	// Fluff
+	setarray .c_lv[1], 10; setarray .c_cd[1], 21422; setarray .c_item[1], 918; setarray .c_exp[1], 5400;	// Sticky_Webfoot
+	setarray .c_lv[2], 15; setarray .c_cd[2], 21423; setarray .c_item[2], 940; setarray .c_exp[2], 5940;	// Grasshopper's_Leg
+	setarray .c_lv[3], 20; setarray .c_cd[3], 21424; setarray .c_item[3], 946; setarray .c_exp[3], 7020;	// Snail's_Shell
+	setarray .c_lv[4], 25; setarray .c_cd[4], 21425; setarray .c_item[4], 925; setarray .c_exp[4], 9720;	// Bill_Of_Birds
+	setarray .c_lv[5], 30; setarray .c_cd[5], 21426; setarray .c_item[5], 948; setarray .c_exp[5], 10800;	// Bear's_Foot
+	setarray .c_lv[6], 35; setarray .c_cd[6], 21427; setarray .c_item[6], 907; setarray .c_exp[6], 13980;	// Resin
+	setarray .c_lv[7], 40; setarray .c_cd[7], 21428; setarray .c_item[7], 942; setarray .c_exp[7], 16200;	// Yoyo_Tail
+	setarray .c_lv[8], 45; setarray .c_cd[8], 21429; setarray .c_item[8], 1041; setarray .c_exp[8], 19980;	// Lantern
+	setarray .c_lv[9], 50; setarray .c_cd[9], 21430; setarray .c_item[9], 961; setarray .c_exp[9], 22140;	// Conch
+	setarray .c_lv[10], 55; setarray .c_cd[10], 21431; setarray .c_item[10], 950; setarray .c_exp[10], 28560;	// Heart_Of_Mermaid
+	setarray .c_lv[11], 60; setarray .c_cd[11], 21432; setarray .c_item[11], 1028; setarray .c_exp[11], 34380;	// Wild_Boar's_Mane
+	setarray .c_lv[12], 65; setarray .c_cd[12], 21433; setarray .c_item[12], 1020; setarray .c_exp[12], 35640;	// Long_Hair
+	setarray .c_lv[13], 70; setarray .c_cd[13], 21434; setarray .c_item[13], 944; setarray .c_exp[13], 36000;	// Horseshoe
+	setarray .c_lv[14], 75; setarray .c_cd[14], 21435; setarray .c_item[14], 1042; setarray .c_exp[14], 48600;	// Short_Leg
+	setarray .c_lv[15], 80; setarray .c_cd[15], 21436; setarray .c_item[15], 7124; setarray .c_exp[15], 62040;	// Sand_Lump
+	setarray .c_lv[16], 85; setarray .c_cd[16], 21437; setarray .c_item[16], 7264; setarray .c_exp[16], 72060;	// Dried_Sand
+	setarray .c_lv[17], 90; setarray .c_cd[17], 21438; setarray .c_item[17], 967; setarray .c_exp[17], 78300;	// Turtle_Shell
+	setarray .c_lv[18], 95; setarray .c_cd[18], 21439; setarray .c_item[18], 1038; setarray .c_exp[18], 108360;	// Petite_DiablOfs_Horn
+	setarray .c_lv[19], 100; setarray .c_cd[19], 21440; setarray .c_item[19], 7561; setarray .c_exp[19], 116640;	// Ice_Heart
+	end;
+}
+moc_para01,29,35,4	duplicate(Logistics Officer#edmb)	Logistics Officer#edmb1	4_M_EDEN_GUARDER
+moc_para01,37,96,4	duplicate(Logistics Officer#edmb)	Logistics Officer#edmb2	4_M_EDEN_GUARDER
+
+// Cave shortcuts: warp members who hold one of the listed board hunts.
+// getarg(0) = NPC name, 1-3 = map, x, y, 4 = place name, 5.. = quest ids.
+function	script	F_EdenMB_Shortcut	{
+	if (!getextension("eden_rework_2021"))
+		end;
+	mes "[" + getarg(0) + "]";
+	for (.@i = 5; .@i < getargcount(); ++.@i) {
+		if (checkquest(getarg(.@i), HAVEQUEST) == 1)
+			break;
+	}
+	if (.@i == getargcount()) {
+		mes "I take Eden Group members on board missions straight into " + getarg(4) + ".";
+		mes "You don't have one of those missions right now.";
+		close;
+	}
+	mes "You're on an Eden Group mission? I can take you straight into " + getarg(4) + ".";
+	next;
+	if (select("Take me there:Not now") == 2)
+		close;
+	warp getarg(1), getarg(2), getarg(3);
+	end;
+}
+
+// Positions are from twRO's Eden 2.0 guide and the 2016 kRO notice;
+// destinations and sprites are [unverified].
+yuno_fild08,86,195,5	script	Rigel#edmb	4_M_EDEN_GUARDER,{
+	callfunc "F_EdenMB_Shortcut", "Rigel", "jupe_core", 150, 286, "the Juperos core", 21351, 21353, 21355, 21357;
+}
+ve_fild07,109,145,5	script	Aker#edmb	4_M_EDEN_GUARDER,{
+	callfunc "F_EdenMB_Shortcut", "Aker", "nameless_n", 168, 252, "Nameless Island", 21363, 21365, 21367;
+}
+lighthalzen,310,306,5	script	Ayla#edmb	4_F_EDEN_OFFICER,{
+	callfunc "F_EdenMB_Shortcut", "Ayla", "lhz_dun01", 149, 285, "the Somatology Laboratory", 21592, 21595, 21598, 21601, 21604, 21607, 21610, 21613, 21616, 21619, 21622, 21625;
+}
+geffen,129,46,5	script	Minmin#edmb	4_F_EDEN_OFFICER,{
+	callfunc "F_EdenMB_Shortcut", "Minmin", "gefenia01", 58, 169, "Geffenia", 21393;
+}
+
+// Shows either the old Eden missions or this file's NPCs, never both.
+-	script	#eden_rework_missions	-1,{
+	end;
+OnInit:
+	setarray .@new$, "1~39 Mission Board#edmb1a", "40~69 Mission Board#edmb2a", "70~99 Mission Board#edmb3a",
+		"100~110 Mission Board#edmb4a", "120~140 Mission Board#edmb5a", "Advanced Mission Board#edmb6a",
+		"1~39 Mission Board#edmb1b", "40~69 Mission Board#edmb2b", "70~99 Mission Board#edmb3b",
+		"100~110 Mission Board#edmb4b", "120~140 Mission Board#edmb5b", "Advanced Mission Board#edmb6b",
+		"Logistics Officer#edmb1", "Logistics Officer#edmb2",
+		"Rigel#edmb", "Aker#edmb", "Ayla#edmb", "Minmin#edmb";
+	// The old boards (11-25.txt to 91-99.txt), their reward NPCs, and the
+	// old 100-140 mission NPCs (eden_100_111.txt to eden_131_140.txt).
+	setarray .@old$, "Mission [11 - 25]#Tuto", "Spike",
+		"Mission [26 - 40]", "Sponiac", "Dieshin Man", "Zoologist", "Entomologist", "Biologist", "Dashia",
+		"Mission [41 - 55]", "Mission [56 - 70]", "Mission [71 - 85]", "86-90 Mission Board", "91-99 Mission Board",
+		"Gelkah#1", "Rohtert#12", "Mingmin#1", "Melody-Jack#1", "Aigu#1",
+		"Trace of an adventurer#1", "Trace of an adventurer#2", "Trace of an adventurer#3", "Trace of an adventurer#4",
+		"Suspicious Monster#1", "Ragi#1";
+
+	if (getextension("eden_rework_2021"))
+		copyarray .@hide$[0], .@old$[0], getarraysize(.@old$);
+	else
+		copyarray .@hide$[0], .@new$[0], getarraysize(.@new$);
+	for (.@i = 0; .@i < getarraysize(.@hide$); ++.@i)
+		disablenpc .@hide$[.@i];
+	end;
+}

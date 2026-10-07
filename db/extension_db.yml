@@ -140,6 +140,13 @@ Body:
       time, then Eden Group Coins. Every NPC of the old Eden Team gear
       quests (old Boya and Ur, their field NPCs and dispatched
       instructors, old Thorn, BK and Michael) is hidden.
+      Missions (npc/re/quests/eden/eden_paradise_missions.txt): six
+      mission boards (1~39 to 120~140 hand out kRO's town daily hunts,
+      the Advanced board quests 19000-19064), each placed twice; a
+      Logistics Officer for 30-item deliveries; and cave shortcut NPCs
+      Rigel, Aker, Ayla and Minmin. Lv100+ missions pay Eden Group Coins.
+      The old mission boards, the 100-140 mission NPCs and their field
+      NPCs are hidden.
       Renewal only. Off is stock rAthena: the new NPCs are hidden and the
       old ones stay.
     Enabled: false

@@ -91,4 +91,4 @@ server restarts (the app's **Apply**).
 |---|---|
 | `pc_drop_item_event` | Fires an `OnPCDropItemEvent` script event for each item a monster drops for a player |
 | `map_mob_count_rate` | Enables `setmapmobcountrate`, which scales the monster count of every spawn line on one map |
-| `eden_rework_2021` | Replaces Eden Group content with kRO's 2021 rework, all or nothing. So far: the gear quests (new Instructors Ur and Boya, Administrators BK, Michael, Thorn and Emil); the old Eden Team gear NPCs are hidden |
+| `eden_rework_2021` | Replaces Eden Group content with kRO's 2021 rework, all or nothing. So far: the gear quests (new Instructors Ur and Boya, Administrators BK, Michael, Thorn and Emil) and the missions (six mission boards, the Logistics Officer, cave shortcut NPCs); the old Eden Team gear NPCs, mission boards and 100-140 mission NPCs are hidden |
