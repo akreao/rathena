@@ -13066,7 +13066,7 @@ Body:
     Targets:
       - Mob: HYEGUN
         Count: 15
-      - Mob: DANCING_DRAGON
+      - Mob: LI_ME_MANG_RYANG
         Count: 15
   - Id: 21066
     Title: The Secret Sleeper (Standby)
@@ -13340,7 +13340,7 @@ Body:
   - Id: 21225
     Title: Eggs and Grasshoppers
     Targets:
-      - Mob: PECOPECO_EGG
+      - Mob: MAGNOLIA
         Count: 10
       - Mob: METALLER
         Count: 10

@@ -415,7 +415,7 @@ OnInit:
 	callsub S_Row, 2, 21264, 21265, 40, "Orc Village", "Nimble Goblins", "Hunt 10 Goblin (Hammer) and 10 Goblin (Dagger)", 13000, 8600, 0, "", "";
 	// [unverified] 21269: morning star goblin taken as GOBLIN_5
 	callsub S_Row, 2, 21269, 21270, 50, "Orc Village", "A Troublesome Bunch", "Hunt 10 Goblin (Morning Star) and 10 Goblin Archer", 11800, 11900, 0, "", "";
-	callsub S_Row, 2, 21225, 21226, 40, "Izlude and Byalan", "Eggs and Grasshoppers", "Hunt 10 Peco Peco Egg and 10 Metaller", 8400, 8380, 0, "", "";
+	callsub S_Row, 2, 21225, 21226, 40, "Izlude and Byalan", "Eggs and Grasshoppers", "Hunt 10 Magnolia and 10 Metaller", 8400, 8380, 0, "", "";
 	callsub S_Row, 2, 21228, 21229, 40, "Izlude and Byalan", "Sampling Is the Hard Part", "Hunt 10 Marina and 10 Plankton", 9600, 8380, 0, "1052,10", "";
 	callsub S_Row, 2, 21231, 21232, 40, "Izlude and Byalan", "Make Hay While the Sun Shines", "Hunt 10 Vadon", 7800, 8380, 0, "960,5", "";
 	callsub S_Row, 2, 21237, 21238, 50, "Izlude and Byalan", "For a Friend", "Hunt 10 Swordfish and 10 Marc", 12400, 14380, 0, "", "";
@@ -483,8 +483,7 @@ OnInit:
 	callsub S_Row, 3, 21047, 21048, 80, "Foreign Lands", "Moscovia's Nightmare", "Hunt 20 Kikimora", 42660, 43600, 0, "", "";
 	callsub S_Row, 3, 21059, 21060, 80, "Foreign Lands", "Broom, Cauldron and Grandma", "Hunt 20 Baba-Yaga", 45700, 46700, 0, "", "";
 	callsub S_Row, 3, 21051, 21052, 80, "Foreign Lands", "A Rice Cake Made of Sand?", "Hunt 20 Mi Gao", 39600, 35000, 0, "", "";
-	// [unverified] 21065: kRO's second target taken as Zhu Po Long
-	callsub S_Row, 3, 21065, 21066, 80, "Foreign Lands", "The Tomb Where Secrets Sleep", "Hunt 15 Yao Jun and 15 Zhu Po Long", 72000, 72000, 0, "", "";
+	callsub S_Row, 3, 21065, 21066, 80, "Foreign Lands", "The Tomb Where Secrets Sleep", "Hunt 15 Yao Jun and 15 Jing Guai", 72000, 72000, 0, "", "";
 	callsub S_Row, 3, 21049, 21050, 80, "Foreign Lands", "A Beautiful Doll", "Hunt 20 Miyabi Doll", 36800, 40100, 0, "", "";
 	callsub S_Row, 3, 21061, 21062, 80, "Foreign Lands", "The Fallen, the Victor and the Rest", "Hunt 20 Firelock Soldier", 47500, 48300, 0, "", "";
 	callsub S_Row, 3, 21067, 21068, 90, "Foreign Lands", "The Walls Have Ears", "Hunt 20 Shinobi", 81120, 72200, 0, "", "";
