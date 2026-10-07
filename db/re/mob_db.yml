@@ -105404,12 +105404,121 @@ Body:
       - Item: Plasma_Spt_Card
         Rate: 1
         StealProtected: true
-#  - Id: 20610
-#    AegisName: REGINLEIF
-#    DamageTaken: 10
-#  - Id: 20611
-#    AegisName: INGRID
-#    DamageTaken: 10
+# Odin's Past Valkyries, from Divine Pride's kRO data. Attack and Attack2 are
+# derived from its displayed ranges (spread / 0.4 and / 0.6), and the motions
+# are copied from Holy Frus. [unverified]
+  - Id: 20610
+    AegisName: REGINLEIF
+    Name: Valkyrie Reginleif
+    Level: 207
+    Hp: 79619337
+    BaseExp: 5700403
+    JobExp: 3990282
+    Attack: 7712
+    Attack2: 2028
+    Defense: 506
+    MagicDefense: 94
+    Str: 281
+    Agi: 183
+    Vit: 147
+    Int: 298
+    Dex: 201
+    Luk: 101
+    AttackRange: 3
+    SkillRange: 10
+    ChaseRange: 12
+    Size: Medium
+    Race: Angel
+    Element: Fire
+    ElementLevel: 4
+    WalkSpeed: 120
+    AttackDelay: 575
+    AttackMotion: 576
+    DamageMotion: 432
+    DamageTaken: 10
+    Ai: 21
+    Class: Boss
+    Modes:
+      Mvp: true
+    MvpDrops:
+      - Item: Angel_Dream
+        Rate: 5000
+      - Item: Odin_itembox
+        Rate: 6000
+    Drops:
+      - Item: Angel_Dream
+        Rate: 7000
+      - Item: Rune_Of_Darkness
+        Rate: 10000
+      - Item: Soft_Feather
+        Rate: 10000
+      - Item: Zelunium
+        Rate: 50
+      - Item: Valhalla_Flower
+        Rate: 5000
+      - Item: Cassock_Boots
+        Rate: 1000
+      - Item: Shadowdecon
+        Rate: 50
+      - Item: Reginleif_Card
+        Rate: 1
+        StealProtected: true
+  - Id: 20611
+    AegisName: INGRID
+    Name: Valkyrie Ingrid
+    Level: 207
+    Hp: 79577937
+    BaseExp: 5684138
+    JobExp: 3978897
+    Attack: 7685
+    Attack2: 3768
+    Defense: 374
+    MagicDefense: 92
+    Str: 297
+    Agi: 185
+    Vit: 135
+    Int: 273
+    Dex: 205
+    Luk: 99
+    AttackRange: 2
+    SkillRange: 10
+    ChaseRange: 12
+    Size: Medium
+    Race: Angel
+    Element: Water
+    ElementLevel: 4
+    WalkSpeed: 130
+    AttackDelay: 575
+    AttackMotion: 576
+    DamageMotion: 432
+    DamageTaken: 10
+    Ai: 21
+    Class: Boss
+    Modes:
+      Mvp: true
+    MvpDrops:
+      - Item: Angel_Dream
+        Rate: 5000
+      - Item: Odin_itembox
+        Rate: 6000
+    Drops:
+      - Item: Angel_Dream
+        Rate: 7000
+      - Item: Rune_Of_Darkness
+        Rate: 10000
+      - Item: Soft_Feather
+        Rate: 10000
+      - Item: Zelunium
+        Rate: 50
+      - Item: Valhalla_Flower
+        Rate: 5000
+      - Item: Cassock_Manteau
+        Rate: 1000
+      - Item: Shadowdecon
+        Rate: 50
+      - Item: Ingrid_Card
+        Rate: 1
+        StealProtected: true
   - Id: 20612
     AegisName: FERUS_P
     Name: Purple Ferus
