@@ -263,6 +263,9 @@ moc_para01,110,83,3	script	Administrator Michael#para	4_M_RUSMAN1,{
 		mes .@name$;
 		// The first advanced weapon costs 15 Old Pick (quest 17537); every
 		// one after that costs 10 Eden Coins. [verified]
+		// [unverified] A 2023 twRO guide says Eden gear exchanges also take
+		// 3 Kobold Hair (1034). No kRO source lists it for weapons, so it
+		// isn't charged here.
 		if (!EDEN_PARA_ADV_WEAPON) {
 			mes "Your first advanced weapon is made";
 			mes "from ^0000FF15 Old Pick^000000.";
@@ -327,6 +330,9 @@ moc_para01,110,87,3	script	Administrator Thorn#para	2_M_OLDBLSMITH,{
 
 	// The first full set costs 15 Elastic Band and 3 Blue Hair (quest 17536);
 	// after that each piece costs 10 Eden Coins. [verified]
+	// [unverified] A 2023 twRO guide says Eden gear exchanges take 3 Kobold
+	// Hair; that may be this same 3 Blue Hair (Cobold_Hair, 1034). It isn't
+	// added to the coin purchases.
 	if (!EDEN_PARA_ADV_ARMOR) {
 		mes .@name$;
 		mes "Your first set is made from";
