@@ -712,7 +712,6 @@ OnInit:
 	callsub S_Row, 7, 21842, 21843, 110, "Other Regions", "Solid Dark Pinguicula Hunt", "Hunt 1 Solid Dark Pinguicula, found on spl_fild01", 20475, 71775, 0, "", "";
 	callsub S_Row, 7, 21844, 21845, 120, "Other Regions", "Swift Centipede Hunt", "Hunt 1 Swift Centipede, found on dic_fild01", 31200, 80487, 0, "", "";
 	callsub S_Row, 7, 21846, 21847, 130, "Other Regions", "Dolomedes Ringleader Hunt", "Hunt 1 Dolomedes Ringleader, found on dic_fild02", 50265, 153054, 0, "", "";
-	// [unverified] 21848: kRO places it on Scaraba Hall 1F; here it spawns on dic_dun02
 	callsub S_Row, 7, 21848, 21849, 130, "Other Regions", "Elusive Antler Scaraba Hunt", "Hunt 1 Elusive Antler Scaraba, found on dic_dun02", 47475, 156024, 0, "", "";
 	callsub S_Row, 7, 21850, 21851, 130, "Other Regions", "Miming Ringleader Hunt", "Hunt 1 Miming Ringleader, found on bif_fild01", 69225, 187110, 0, "", "";
 	callsub S_Row, 7, 21852, 21853, 130, "Other Regions", "Furious Little Fatum Hunt", "Hunt 1 Furious Little Fatum, found on bif_fild02", 73125, 193050, 0, "", "";
