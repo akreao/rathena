@@ -13,7 +13,7 @@
 //=   Administrator Emil    110,91  shadow gear rentals
 //=
 //= Off by default. It runs only when the server extension
-//= "eden_paradise_gear" is on (db/import/extension_db.yml, or a
+//= "eden_rework_2021" is on (db/import/extension_db.yml, or a
 //= Ragnarok Offline mod's db/extension_db.yml). It is all or nothing:
 //= while it is on, every NPC of the old Eden Team gear quests in
 //= eden_quests.txt is hidden (old Boya and Ur, their field NPCs and
@@ -568,7 +568,7 @@ moc_para01,110,91,3	script	Administrator Emil#para	1_F_GYPSY,{
 	.@name$ = "[Administrator Emil]";
 	// Rental length; the extension can change it. 72 hours matches every
 	// source but one (Inven 254590 calls advanced shadow gear unlimited).
-	.@hours = getextensionvalue("eden_paradise_gear", "shadow_rental_hours", 72);
+	.@hours = getextensionvalue("eden_rework_2021", "shadow_rental_hours", 72);
 	if (isbegin_quest(17533) == 1) {
 		changequest 17533, 17534;
 		mes .@name$;
@@ -655,7 +655,7 @@ moc_para01,110,91,3	script	Administrator Emil#para	1_F_GYPSY,{
 }
 
 // Shows either the old Eden Team gear quests or this file's NPCs, never both.
--	script	#eden_paradise_gear	-1,{
+-	script	#eden_rework_gear	-1,{
 	end;
 OnInit:
 	setarray .@new$, "Instructor Ur#para", "Instructor Boya#para",
@@ -667,7 +667,7 @@ OnInit:
 		"Dispatched Instructor#04", "Dispatched Instructor#05", "Dispatched Instructor#06", "Dispatched Instructor#07",
 		"Dispatched Instructor#08", "Administrator Michael", "Blacksmith Thorn#2nd10", "Weapons Expert BK#2nd11";
 
-	if (getextension("eden_paradise_gear"))
+	if (getextension("eden_rework_2021"))
 		copyarray .@hide$[0], .@old$[0], getarraysize(.@old$);
 	else
 		copyarray .@hide$[0], .@new$[0], getarraysize(.@new$);
