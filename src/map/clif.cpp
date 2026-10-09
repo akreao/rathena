@@ -13995,12 +13995,13 @@ void clif_parse_PartyBookingRegisterReq(int32 fd, map_session_data* sd){
 	struct s_packet_db* info = &packet_db[RFIFOW(fd,0)];
 	int16 level = RFIFOW(fd,info->pos[0]);
 	int16 mapid = RFIFOW(fd,info->pos[1]);
-	int32 idxpbj = info->pos[2];
+	// The jobs follow the map id. Most shuffled packet tables list only the first two positions.
+	int32 idxpbj = info->pos[1] + 2;
 	int16 job[MAX_PARTY_BOOKING_JOBS];
 	int32 i;
 
 	for(i=0; i<MAX_PARTY_BOOKING_JOBS; i++)
-		job[i] = RFIFOB(fd,idxpbj+i*2);
+		job[i] = RFIFOW(fd,idxpbj+i*2);
 
 	party_booking_register(sd, level, mapid, job);
 }
