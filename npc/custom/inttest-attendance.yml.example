@@ -1,0 +1,17 @@
+Header:
+  Type: ATTENDANCE_DB
+  Version: 1
+
+Body:
+  - Start: 20261001
+    End: 20261031
+    Rewards:
+      - Day: 1
+        ItemId: 501
+        Amount: 5
+      - Day: 2
+        ItemId: 502
+        Amount: 5
+      - Day: 3
+        ItemId: 503
+        Amount: 5

@@ -1,0 +1,40 @@
+-	script	inttest	-1,{
+OnInit:
+	bindatcmd "t", strnpcinfo(3)+"::OnCmd", 0, 99;
+	end;
+OnCmd:
+	.@c$ = .@atcmd_parameters$[0];
+	if (.@c$ == "navi") navigateto("prontera",150,150);
+	else if (.@c$ == "navi2") navigateto("prt_fild08",170,370);
+	else if (.@c$ == "book") readbook 11000,1;
+	else if (.@c$ == "bgm") playBGM "15";
+	else if (.@c$ == "quest") { setquest 1000; open_quest_ui 1000; }
+	else if (.@c$ == "bank") openbank();
+	else if (.@c$ == "search") searchstores 10,1;
+	else if (.@c$ == "merge") mergeitem;
+	else if (.@c$ == "gslog") guildopenstorage_log;
+	else if (.@c$ == "dress") opendressroom;
+	else if (.@c$ == "eff") specialeffect2 568;
+	else if (.@c$ == "effoff") removespecialeffect2 568;
+	else if (.@c$ == "rent") rentitem 1201,90;
+	else if (.@c$ == "stylist") openstylist();
+	else dispbottom "unknown "+.@c$;
+	end;
+}
+-	script	inttest2	-1,{
+OnInit:
+	bindatcmd "t2", strnpcinfo(3)+"::OnCmd", 0, 99;
+	end;
+OnCmd:
+	.@c$ = .@atcmd_parameters$[0];
+	if (.@c$ == "items") { getitem 501,5; getitem 502,5; getitem 1201,1; getitem 2301,1; getitem 12103,3; }
+	else if (.@c$ == "mergeprep") {  getitem 13826,2; getitem 13826,3; getitem 13826,1; }
+	else if (.@c$ == "airticket") { getitem 25464,5; getitem 6909,5; }
+	else if (.@c$ == "mob") { getmapxy(.@m$,.@x,.@y); monster .@m$,.@x+3,.@y,"Poring",1002,1,""; .mob = $@mobid[0]; dispbottom "mob "+.mob; }
+	else if (.@c$ == "marker") { unitskilluseid getcharid(3), 2560, 1, .mob; }
+	else if (.@c$ == "mobopt") { sc_start SC_SWOO,3000,1,10000,0,.mob; }
+	else if (.@c$ == "gun") { equip 13100; equip 13200; }
+	else if (.@c$ == "wed") { wedding; }
+	else dispbottom "unknown2 "+.@c$;
+	end;
+}
