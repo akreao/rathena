@@ -167,6 +167,24 @@ Body:
       setstylistcost warns and does nothing.
     Enabled: false
 
+  - Id: channel_log
+    Name: Messages in one chat channel go to the map server's log
+    Description: |
+      Writes each message a player sends in the chat channel named by
+      Values.channel to the map server's log, one line each:
+        [Info]: [channel] #discord<tab><character name><tab><message>
+      so a program following the log can pass the channel on, for example to
+      a Discord channel. Messages a script sends with channel_chat are not
+      written, so a program that puts replies back into the channel does not
+      see its own. The channel itself is made as usual, in channels.conf or
+      with channel_create. Off is stock rAthena: nothing is written.
+    Enabled: false
+    Values:
+      - Key: channel
+        Type: String
+        Default: "#discord"
+        Description: The channel to write, with or without its #.
+
 Footer:
   Imports:
     - Path: db/import/extension_db.yml

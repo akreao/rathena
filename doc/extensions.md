@@ -118,3 +118,4 @@ server restarts (the app's **Apply**).
 | `attendance_repeat` | Attendance rewards start over at day 1 after the last day of the period |
 | `attendance_script_rewards` | Enables `setattendancereward`, which changes one day's reward of the running attendance period |
 | `stylist_script_costs` | Enables `setstylistcost`, which sets the stylist window's cost of one look in Zeny or a coupon, and `setstylistpayment`, which picks how a player pays; an order is bought whole or not at all |
+| `channel_log` | Writes each message players send in one chat channel (`#discord` by default) to the map server's log, for a program that relays it, such as a Discord bridge |
