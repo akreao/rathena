@@ -16,6 +16,7 @@
 
 #include "battle.hpp"
 #include "clif.hpp" //clif_chsys_msg
+#include "extensions.hpp"
 #include "guild.hpp"
 #include "map.hpp" //msg_conf
 #include "pc.hpp"
@@ -433,6 +434,24 @@ int32 channel_pcquit(map_session_data *sd, int32 type){
 }
 
 /**
+ * Write a player's message in the channel named by the channel_log extension
+ * to the map server's log, for a program that follows it.
+ * @param channel: Channel the message was sent in
+ * @param sd: Player who sent it
+ * @param msg: The message, as typed
+ */
+static void channel_log(struct Channel *channel, map_session_data *sd, const char *msg) {
+	if (!extension_enabled("channel_log"))
+		return;
+	std::string name = extension_string("channel_log", "channel", "");
+	if (!name.empty() && name[0] == '#')
+		name.erase(0, 1);
+	if (name.empty() || strcmpi(channel->name, name.c_str()) != 0)
+		return;
+	ShowInfo("[channel] #%s\t%s\t%s\n", channel->name, sd->status.name, msg);
+}
+
+/**
  * Format message from player to send to the channel
  * - Also truncate extra characters if message is too long
  * @param channel: Channel data
@@ -461,6 +480,7 @@ int32 channel_send(struct Channel *channel, map_session_data *sd, const char *ms
 		safesnprintf(output, CHAT_SIZE_MAX, "%s %s : %s", channel->alias, sd->status.name, msg);
 		clif_channel_msg(channel,output,color);
 		sd->channel_tick[idx] = gettick();
+		channel_log(channel, sd, msg);
 	}
 	return 0;
 }
